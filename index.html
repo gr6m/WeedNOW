@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>Weed Street — Shop</title>
-<meta name="description" content="Weed Street shop — premium cannabis, delivered Canada-wide. 19+."/>
+<title>WeedNOW</title>
+<meta name="description" content="WeedNOW — premium cannabis, delivered Canada-wide. 19+."/>
 <meta name="color-scheme" content="dark"/>
 <meta name="theme-color" content="#0a0c09"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -43,7 +43,7 @@
     background:radial-gradient(circle, rgba(95,224,126,.12), transparent 66%); mix-blend-mode:screen; opacity:0; transition:opacity .5s}
   .spot.on{opacity:1}
 
-  .wrap{position:relative; z-index:2; max-width:1180px; margin:0 auto; padding:0 clamp(14px,4vw,30px) 120px}
+  .wrap{position:relative; z-index:2; max-width:1280px; margin:0 auto; padding:0 clamp(14px,4vw,30px) 120px}
 
   /* header */
   header{position:sticky; top:0; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -126,6 +126,9 @@
 
   /* grid + cards */
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,152px),1fr)); gap:clamp(12px,2vw,18px)}
+  @media(min-width:640px){ .grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))} }
+  @media(min-width:1024px){ .grid{grid-template-columns:repeat(auto-fill,minmax(216px,1fr)); gap:22px}
+    .cn{font-size:18px} .cmeta{font-size:10.5px} .cp{font-size:17px} .cbody{padding:14px} }
   .card{position:relative; display:flex; flex-direction:column; cursor:pointer; border:1px solid var(--line); background:var(--panel);
     overflow:hidden; transition:transform .18s ease-out, border-color .3s, box-shadow .3s; animation:pop .5s both}
   .card:hover{transform:translateY(-5px); border-color:rgba(95,224,126,.5); box-shadow:0 18px 44px rgba(0,0,0,.55), 0 0 34px rgba(95,224,126,.12)}
@@ -205,7 +208,7 @@
 
   .qscrim{position:fixed; inset:0; z-index:72; background:rgba(0,0,0,.66); backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:opacity .3s, visibility .3s}
   .qscrim.open{opacity:1; visibility:visible}
-  .quick{position:fixed; left:50%; top:50%; z-index:73; width:min(460px,92vw); max-height:88svh; overflow-y:auto; overscroll-behavior:contain;
+  .quick{position:fixed; left:50%; top:50%; z-index:73; width:min(500px,92vw); max-height:88svh; overflow-y:auto; overscroll-behavior:contain;
     background:#0c0f0b; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.7);
     transform:translate(-50%,-46%) scale(.96); opacity:0; visibility:hidden; transition:opacity .3s, transform .32s cubic-bezier(.2,.8,.2,1), visibility .3s}
   .quick.open{opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1)}
@@ -332,7 +335,7 @@
   #hero .tags b{color:var(--bone); font-weight:700}
   #hero .stage{position:relative; z-index:6; display:flex; flex-direction:column; align-items:center; gap:clamp(20px,3.4vh,34px)}
   #hero .markwrap{position:relative; line-height:.82; filter:drop-shadow(0 7px 12px rgba(0,0,0,.55)); animation:sprayin_h 1s cubic-bezier(.2,.8,.2,1) both}
-  #hero .mark{margin:0; font-family:var(--black-let); font-weight:400; letter-spacing:.005em; text-transform:none; font-size:clamp(74px,20vw,220px); filter:url(#rough)}
+  #hero .mark{margin:0; font-family:var(--black-let); font-weight:400; letter-spacing:.005em; text-transform:none; font-size:clamp(74px,18vw,260px); filter:url(#rough)}
   #hero .mark span{display:block}
   #hero .mark .l2{margin-top:0}
   #hero .m0{color:var(--paint); text-shadow:0 0 32px rgba(95,224,126,.4); position:relative; z-index:2; animation:flick_h 5s steps(1) infinite}
@@ -530,7 +533,7 @@
     <div class="ggrain" aria-hidden="true"></div>
     <div class="gatebox">
       <div class="g19">19+</div>
-      <h2>Weed Street</h2>
+      <h2>WeedNOW</h2>
       <p>You must be 19 or older to enter.<br/>Canada only.</p>
       <div class="gbtns">
         <button class="gyes" id="gyes" type="button">Yes &mdash; I'm 19 or older</button>
@@ -558,9 +561,9 @@
 
     <div class="stage">
       <div class="markwrap">
-        <p class="mark m0" aria-label="Weed Street"><span>Weed</span><span class="l2">Street</span></p>
-        <p class="mark m1" aria-hidden="true"><span>Weed</span><span class="l2">Street</span></p>
-        <p class="mark m2" aria-hidden="true"><span>Weed</span><span class="l2">Street</span></p>
+        <p class="mark m0" aria-label="WeedNOW"><span>Weed</span><span class="l2">NOW</span></p>
+        <p class="mark m1" aria-hidden="true"><span>Weed</span><span class="l2">NOW</span></p>
+        <p class="mark m2" aria-hidden="true"><span>Weed</span><span class="l2">NOW</span></p>
       </div>
 
       <p class="sub"><span>Premium cannabis</span><i class="dot"></i><b>Delivered Canada-wide</b></p>
@@ -584,8 +587,8 @@
   <div class="spot" id="spot" aria-hidden="true"></div>
 
   <header>
-    <a class="brand" role="button" tabindex="0" aria-label="Weed Street home">
-      <span class="bw">Weed<span class="st">St</span></span>
+    <a class="brand" role="button" tabindex="0" aria-label="WeedNOW home">
+      <span class="bw">Weed<span class="st">NOW</span></span>
     </a>
     <span class="hstatus"><i></i>Same-day local &middot; Canada-wide</span>
     <div class="hr">
@@ -1012,7 +1015,7 @@
     var sub=orderSub(), fee=sub>=FREE_AT?0:(m==='shipping'?15:12), grand=sub+fee;
     function amt(v){ return fmtPayable(v, pay); }
     var email=(coform.querySelector('[name="email"]')||{}).value||'';
-    var ord='WS-'+Math.floor(100000+Math.random()*900000);
+    var ord='WN-'+Math.floor(100000+Math.random()*900000);
     if(_sb){ try{ var _items=[]; Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; _items.push({name:p.n, variant:(p.v.length>1?ck.vn:''), qty:cart[k], price:vprice(p,ck.vn)}); }); var _f=function(n){ var el=coform.querySelector('[name="'+n+'"]'); return el?String(el.value).trim():''; }; _sb.from('orders').insert({ ref:ord, items:_items, subtotal:sub, delivery_method:m, delivery_fee:fee, total:grand, currency:'CAD', payment_method:pay, customer:{name:_f('name'),email:_f('email'),phone:_f('phone'),address:_f('address'),city:_f('city'),province:_f('province'),postal:_f('postal')}, status:'new' }).then(function(){}, function(){}); }catch(e){} }
     var recap='<div class="corecap">';
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var vn=(p.v.length>1?ck.vn:''); recap+='<div class="cosumrow"><span>'+esc(p.n)+(vn?(' ('+esc(vn)+')'):'')+' &times;'+cart[k]+'</span><span>'+amt(vprice(p,ck.vn)*cart[k])+'</span></div>'; });
@@ -1074,7 +1077,7 @@
     if(fp && !rm && gs){ gate.addEventListener('pointermove', function(e){ if(e.pointerType==='touch') return; gs.style.opacity='1'; gs.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)'; }); }
     var y=document.getElementById('gyes'), no=document.getElementById('gno');
     if(y) y.addEventListener('click', function(){ try{ localStorage.setItem('ws_age_ok','1'); }catch(e){} gate.classList.add('hide'); setTimeout(function(){ if(gate.parentNode) gate.parentNode.removeChild(gate); }, 640); });
-    if(no) no.addEventListener('click', function(){ var b=gate.querySelector('.gatebox'); if(b) b.innerHTML='<div class="g19">19+</div><h2>Hold up</h2><p>You must be 19 or older to enter Weed Street.<br/>Come back when you are of legal age.</p>'; });
+    if(no) no.addEventListener('click', function(){ var b=gate.querySelector('.gatebox'); if(b) b.innerHTML='<div class="g19">19+</div><h2>Hold up</h2><p>You must be 19 or older to enter WeedNOW.<br/>Come back when you are of legal age.</p>'; });
   })();
   if(!rm){ var mw=document.querySelector('#hero .markwrap'); if(mw){ mw.addEventListener('pointerdown', function(){ mw.classList.remove('zap'); void mw.offsetWidth; mw.classList.add('zap'); setTimeout(function(){ mw.classList.remove('zap'); }, 560); }); } }
 })();
@@ -1115,7 +1118,7 @@
       document.getElementById('ed_email').focus();
     }
     function dash(){
-      host.innerHTML='<div class="ed-bar"><span class="ed-title">Weed St admin</span>'+
+      host.innerHTML='<div class="ed-bar"><span class="ed-title">WeedNOW admin</span>'+
         '<button class="ed-btn" id="ed_tabP">Products</button><button class="ed-btn" id="ed_tabO">Orders</button>'+
         '<button class="ed-btn" id="ed_out">Log out</button><button class="ed-btn" id="ed_close">Close</button></div><div id="ed_body"></div>';
       document.getElementById('ed_close').addEventListener('click', close);
