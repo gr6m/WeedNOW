@@ -1043,7 +1043,7 @@
   });
 
   render(); updateCount();
-  function reflow(arr){ if(!Array.isArray(arr)||!arr.length) return; P.length=0; arr.forEach(function(x){ P.push(migrateP(x)); }); reindex(); buildTabs(); render(); updateCount(); }
+  function reflow(arr){ if(!Array.isArray(arr)) return; P.length=0; arr.forEach(function(x){ P.push(migrateP(x)); }); reindex(); buildTabs(); render(); updateCount(); }
   window.__WS={ get:function(){ return P; }, apply:reflow, icon:iconFor };
   /* ---- Supabase keys come from config.js (edit that file, not this one) ---- */
   var SB_URL=(window.SB_URL||''), SB_KEY=(window.SB_KEY||'');
@@ -1051,7 +1051,7 @@
   function _rowToP(r){ return {c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||''}; }
   function _fromDB(){ return _sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ if(res.error||!res.data) return null; return res.data.map(_rowToP); }); }
   function _fromJSON(){ try{ return fetch('products.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
-  function _loadMenu(){ if(_sb){ _fromDB().then(function(arr){ if(arr&&arr.length){ reflow(arr); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }); } }).catch(function(){ _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); }); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); } }
+  function _loadMenu(){ if(_sb){ _fromDB().then(function(arr){ if(arr){ reflow(arr); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }); } }).catch(function(){ _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); }); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); } }
   _loadMenu();
 })();
 </script>
