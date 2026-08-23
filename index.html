@@ -496,8 +496,22 @@
   #editor .ed-bad{color:var(--red); font-size:13px}
   #editor .ed-steps{color:var(--dim); font-size:12px; line-height:1.7}
   #editor .ed-steps b{color:var(--bone)}
+  #editor .ed-order{border:1px solid var(--line); padding:12px; margin-bottom:10px; background:var(--panel)}
+  #editor .eo-top{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  #editor .eo-top b{font-family:var(--cond); font-size:16px; letter-spacing:.03em}
+  #editor .eo-status{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.1em; padding:3px 8px; border:1px solid var(--line); color:var(--dim)}
+  #editor .eo-new{color:var(--paint); border-color:var(--paint)}
+  #editor .eo-paid{color:#e9c94a; border-color:#e9c94a}
+  #editor .eo-fulfilled{color:var(--dim)}
+  #editor .eo-meta{color:var(--dim); font-size:11px; margin:6px 0}
+  #editor .eo-items{font-size:12px; margin-bottom:6px}
+  #editor .eo-cust{color:var(--dim); font-size:11px; line-height:1.6; margin-bottom:8px}
+  #editor .eo-acts{display:flex; gap:6px}
+  #editor .eo-acts button{background:transparent; border:1px solid var(--line); color:var(--dim); font-size:11px; padding:5px 9px; cursor:pointer; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em}
+  #editor .eo-acts button:hover{color:var(--paint); border-color:var(--paint)}
 </style>
 <script>try{if(localStorage.getItem('ws_age_ok')==='1')document.documentElement.classList.add('verified');}catch(e){}</script>
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="hero-open">
@@ -729,7 +743,7 @@
   function typesOf(str){ return String(str||'').split('\u00b7').map(function(x){return x.trim();}).filter(Boolean); }
   function tcol(p){ var a=typesOf(p.t); return TCOL[a[0]]||'#5fe07e'; }
   function typeBadges(p){ return typesOf(p.t).map(function(t){ return '<span class="ctype">'+esc(t)+'</span>'; }).join(''); }
-  var MENU_ONLY=true; /* set false to re-enable ordering */
+  var MENU_ONLY=false; /* set true for menu-only */
   try{ if(MENU_ONLY) document.body.classList.add('menu-only'); }catch(e){}
   var state={cat:'All', q:'', sort:'newest'}, cart={};
   try{ var _sv=JSON.parse(localStorage.getItem('ws_cart')); if(_sv && typeof _sv==='object') cart=_sv; }catch(e){}
@@ -999,6 +1013,7 @@
     function amt(v){ return fmtPayable(v, pay); }
     var email=(coform.querySelector('[name="email"]')||{}).value||'';
     var ord='WS-'+Math.floor(100000+Math.random()*900000);
+    if(_sb){ try{ var _items=[]; Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; _items.push({name:p.n, variant:(p.v.length>1?ck.vn:''), qty:cart[k], price:vprice(p,ck.vn)}); }); var _f=function(n){ var el=coform.querySelector('[name="'+n+'"]'); return el?String(el.value).trim():''; }; _sb.from('orders').insert({ ref:ord, items:_items, subtotal:sub, delivery_method:m, delivery_fee:fee, total:grand, currency:'CAD', payment_method:pay, customer:{name:_f('name'),email:_f('email'),phone:_f('phone'),address:_f('address'),city:_f('city'),province:_f('province'),postal:_f('postal')}, status:'new' }).then(function(){}, function(){}); }catch(e){} }
     var recap='<div class="corecap">';
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var vn=(p.v.length>1?ck.vn:''); recap+='<div class="cosumrow"><span>'+esc(p.n)+(vn?(' ('+esc(vn)+')'):'')+' &times;'+cart[k]+'</span><span>'+amt(vprice(p,ck.vn)*cart[k])+'</span></div>'; });
     recap+='<div class="cosumrow"><span>'+(m==='shipping'?'Shipping':'Delivery')+'</span><span>'+(fee?amt(fee):'Free')+'</span></div>';
@@ -1027,9 +1042,9 @@
   render(); updateCount();
   function reflow(arr){ if(!Array.isArray(arr)||!arr.length) return; P.length=0; arr.forEach(function(x){ P.push(migrateP(x)); }); reindex(); buildTabs(); render(); updateCount(); }
   window.__WS={ get:function(){ return P; }, apply:reflow, icon:iconFor };
-  /* ---- Supabase config: paste your project URL + anon key here ---- */
-  var SB_URL='https://fkpkwyjppobnuxrxhwox.supabase.co', SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrcGt3eWpwcG9ibnV4cnhod294Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyODg5MjEsImV4cCI6MjEwMjg2NDkyMX0.pe8KgyxKoQzUN2qn2Kpc7RvK-Y3XBTCNHVBfarZuOBc';
-  var _sb=null; try{ if(window.supabase && SB_URL.indexOf('YOUR-')<0){ _sb=window.supabase.createClient(SB_URL, SB_KEY); window.__WS.sb=_sb; } }catch(e){}
+  /* ---- Supabase keys come from config.js (edit that file, not this one) ---- */
+  var SB_URL=(window.SB_URL||''), SB_KEY=(window.SB_KEY||'');
+  var _sb=null; try{ if(window.supabase && SB_URL && SB_URL.indexOf('YOUR-')<0){ _sb=window.supabase.createClient(SB_URL, SB_KEY); window.__WS.sb=_sb; } }catch(e){}
   function _rowToP(r){ return {c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||''}; }
   function _fromDB(){ return _sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ if(res.error||!res.data) return null; return res.data.map(_rowToP); }); }
   function _fromJSON(){ try{ return fetch('products.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
@@ -1069,68 +1084,115 @@
   (function(){
     "use strict";
     var host=document.getElementById('editor'); if(!host) return;
-    var PASS='7770'; /* CHANGE THIS PASSCODE */
+    function SB(){ return (window.__WS&&window.__WS.sb)||null; }
+    var CATS=['Flower','Pre-Rolls','Vapes','Edibles','Concentrates'];
+    var TYPES=['Indica','Sativa','Hybrid'];
+    var EFFECTS=['Relaxed','Happy','Euphoric','Uplifted','Sleepy','Hungry','Talkative','Creative','Energetic','Focused','Tingly','Giggly','Aroused','Calm'];
+    var FLAVOURS=['Ammonia','Apple','Apricot','Berry','Blueberry','Blue Cheese','Butter','Cheese','Chemical','Chestnut','Citrus','Coffee','Diesel','Earthy','Flowery','Grape','Grapefruit','Herbal','Honey','Lavender','Lemon','Lime','Mango','Menthol','Mint','Nutty','Orange','Peach','Pear','Pepper','Pine','Pineapple','Plum','Pungent','Rose','Sage','Skunk','Spicy','Strawberry','Sweet','Tar','Tea','Tobacco','Tree Fruit','Tropical','Vanilla','Woody'];
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-    function clone(a){ return JSON.parse(JSON.stringify(a||[])); }
-    function download(name,text){ try{ var b=new Blob([text],{type:'application/json'}); var u=URL.createObjectURL(b); var a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); if(a.parentNode) a.parentNode.removeChild(a); },120); }catch(e){ alert('Download failed'); } }
-    function migrate(p){ p=p||{}; if(!p.v){ p.v=[{n:p.u||'each',p:Number(p.p)||0}]; } if(!Array.isArray(p.v)) p.v=[]; ['t','e','f','d','n'].forEach(function(k){ if(p[k]==null)p[k]=''; }); if(p.c==null)p.c='Flower'; return p; }
-    function normalize(arr){ return arr.map(function(p){ p=migrate(p); return {c:p.c,n:p.n,t:p.t,v:p.v,e:p.e,f:p.f,d:p.d}; }); }
-    var built=false;
-    function open(){ host.hidden=false; host.removeAttribute('aria-hidden'); document.body.style.overflow='hidden'; if(!built) gate(); }
+    function icon(n){ try{ if(window.__WS&&window.__WS.icon) return window.__WS.icon(n); }catch(e){} return ''; }
+    function splitTags(s){ return String(s||'').split('\u00b7').map(function(x){return x.trim();}).filter(Boolean); }
+    var rows=[], editing=null, ordersCache=[], view='products';
+    function open(){ host.hidden=false; host.removeAttribute('aria-hidden'); document.body.style.overflow='hidden'; boot(); }
     function close(){ host.hidden=true; host.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
-    function gate(){
-      var code='', need=PASS.length;
-      host.innerHTML='<div class="ed-gate" id="ed_gatebox"><h2>Menu editor</h2>'+
-        '<div class="ed-dots" id="ed_dots"></div><div class="ed-err" id="ed_gerr"></div>'+
-        '<div class="ed-pad" id="ed_pad">'+
-          '<button type="button" class="ed-key" data-k="1">1</button><button type="button" class="ed-key" data-k="2">2</button><button type="button" class="ed-key" data-k="3">3</button>'+
-          '<button type="button" class="ed-key" data-k="4">4</button><button type="button" class="ed-key" data-k="5">5</button><button type="button" class="ed-key" data-k="6">6</button>'+
-          '<button type="button" class="ed-key" data-k="7">7</button><button type="button" class="ed-key" data-k="8">8</button><button type="button" class="ed-key" data-k="9">9</button>'+
-          '<button type="button" class="ed-key ghost" data-k=""></button><button type="button" class="ed-key" data-k="0">0</button><button type="button" class="ed-key" data-k="del" aria-label="Delete">\u232b</button>'+
-        '</div>'+
-        '<button class="ed-btn" id="ed_gx" style="width:100%; max-width:264px; margin:14px auto 0; display:block">Close</button>'+
-        '<div class="ed-hint">Private tool. Import the menu file you exported from the admin \u2014 it previews here and downloads products.json for you to upload.</div></div>';
-      var dots=document.getElementById('ed_dots'), gerr=document.getElementById('ed_gerr'), boxel=document.getElementById('ed_gatebox');
-      function draw(){ var h=''; for(var i=0;i<need;i++){ h+='<span class="ed-dot'+(i<code.length?' on':'')+'"></span>'; } dots.innerHTML=h; }
-      draw();
-      function check(){ if(code===PASS){ built=true; buildImport(); } else { gerr.textContent='Wrong code'; boxel.classList.add('shake'); setTimeout(function(){ boxel.classList.remove('shake'); },440); code=''; draw(); } }
-      document.getElementById('ed_pad').addEventListener('click', function(e){ var b=e.target.closest('.ed-key'); if(!b) return; var k=b.getAttribute('data-k'); if(k==='') return;
-        if(k==='del'){ code=code.slice(0,-1); gerr.textContent=''; draw(); return; }
-        if(code.length>=need) return; code+=k; draw(); if(code.length===need) setTimeout(check,140);
-      });
-      document.getElementById('ed_gx').addEventListener('click', close);
+    function boot(){ var sb=SB();
+      if(!sb){ host.innerHTML='<div class="ed-gate"><h2>Admin</h2><div class="ed-hint">Database not connected. Add your Supabase URL and anon key in the site file, then reload.</div><button class="ed-btn" id="ed_x" style="width:100%;max-width:264px;margin:14px auto 0;display:block">Close</button></div>'; var x=document.getElementById('ed_x'); if(x) x.addEventListener('click',close); return; }
+      host.innerHTML='<div class="ed-gate"><h2>Admin</h2><div class="ed-hint">Checking session\u2026</div></div>';
+      sb.auth.getSession().then(function(res){ var ss=res&&res.data&&res.data.session; if(ss) dash(); else lognin(); }).catch(function(){ lognin(); });
     }
-    function buildImport(){
-      host.innerHTML='<div class="ed-bar"><span class="ed-title">Publish menu</span><button class="ed-btn" id="ed_close">Close</button></div>'+
-        '<div class="ed-wrap" style="grid-template-columns:1fr; max-width:560px"><div class="ed-panel">'+
-          '<h3 class="ed-h">Import from admin, then publish</h3>'+
-          '<p class="ed-note">In the <b>admin</b> page, tap <b>Download menu file</b>. Then import that file here \u2014 it updates the menu on this device and downloads <b>products.json</b>. Upload that one file to your host (next to the site file) to make it live for everyone.</p>'+
-          '<button class="ed-btn pri" id="ed_pick" style="width:100%; margin-top:8px">Import menu file</button>'+
-          '<input type="file" id="ed_file" accept="application/json,.json" hidden/>'+
-          '<div class="ed-result" id="ed_result" hidden></div>'+
-        '</div></div>';
+    function lognin(){
+      host.innerHTML='<div class="ed-gate"><h2>Admin login</h2>'+
+        '<input id="ed_email" type="email" placeholder="email" autocomplete="username" style="margin-bottom:10px"/>'+
+        '<input id="ed_pw" type="password" placeholder="password" autocomplete="current-password" style="margin-bottom:10px"/>'+
+        '<button class="ed-btn pri" id="ed_login" style="width:100%">Log in</button>'+
+        '<div class="ed-err" id="ed_lerr"></div>'+
+        '<button class="ed-btn" id="ed_x" style="width:100%;margin-top:12px">Close</button></div>';
+      function go(){ var em=document.getElementById('ed_email').value.trim(), pw=document.getElementById('ed_pw').value, er=document.getElementById('ed_lerr'); er.textContent='Signing in\u2026';
+        SB().auth.signInWithPassword({email:em,password:pw}).then(function(res){ if(res.error){ er.textContent=res.error.message||'Login failed'; } else { dash(); } }).catch(function(){ er.textContent='Login failed'; }); }
+      document.getElementById('ed_login').addEventListener('click', go);
+      document.getElementById('ed_pw').addEventListener('keydown', function(e){ if(e.key==='Enter') go(); });
+      document.getElementById('ed_x').addEventListener('click', close);
+      document.getElementById('ed_email').focus();
+    }
+    function dash(){
+      host.innerHTML='<div class="ed-bar"><span class="ed-title">Weed St admin</span>'+
+        '<button class="ed-btn" id="ed_tabP">Products</button><button class="ed-btn" id="ed_tabO">Orders</button>'+
+        '<button class="ed-btn" id="ed_out">Log out</button><button class="ed-btn" id="ed_close">Close</button></div><div id="ed_body"></div>';
       document.getElementById('ed_close').addEventListener('click', close);
-      document.getElementById('ed_pick').addEventListener('click', function(){ document.getElementById('ed_file').click(); });
-      document.getElementById('ed_file').addEventListener('change', onImport);
+      document.getElementById('ed_out').addEventListener('click', function(){ SB().auth.signOut().then(function(){ lognin(); }); });
+      document.getElementById('ed_tabP').addEventListener('click', function(){ view='products'; renderView(); });
+      document.getElementById('ed_tabO').addEventListener('click', function(){ view='orders'; renderView(); });
+      renderView();
     }
-    function onImport(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var r=new FileReader();
-      r.onload=function(){ var data;
-        try{ data=JSON.parse(r.result); }catch(err){ result(false,'That file is not valid JSON.'); e.target.value=''; return; }
-        if(!Array.isArray(data)){ result(false,'That file is not a product list.'); e.target.value=''; return; }
-        var clean=normalize(data);
-        try{ if(window.__WS&&window.__WS.apply) window.__WS.apply(clone(clean)); }catch(err){}
-        download('products.json', JSON.stringify(clean,null,2));
-        result(true, clean.length); e.target.value='';
-      };
-      r.readAsText(f);
+    function renderView(){ if(view==='orders') ordersView(); else productsView(); }
+    function productsView(){
+      document.getElementById('ed_body').innerHTML='<div class="ed-wrap">'+
+        '<div class="ed-panel"><h3 class="ed-h">Products (<span id="ed_count">\u2026</span>)</h3><div id="ed_list">Loading\u2026</div></div>'+
+        '<div class="ed-panel"><h3 class="ed-h" id="ed_ftitle">Add product</h3>'+
+          '<div class="ed-field"><label>Name</label><input id="ed_n"/></div>'+
+          '<div class="ed-field"><label>Category</label><select id="ed_c"></select></div>'+
+          '<div class="ed-field"><label>Type \u2014 multiple ok</label><div class="ed-chips" id="ed_types"></div></div>'+
+          '<div class="ed-field"><label>Variants \u2014 size + price (stock, low optional)</label><div id="ed_vars"></div><button class="ed-btn" id="ed_addvar" style="margin-top:6px;font-size:11px;padding:6px 10px">+ Add variant</button></div>'+
+          '<div class="ed-field"><label>Effects</label><div class="ed-chips" id="ed_eff"></div></div>'+
+          '<div class="ed-field"><label>Flavours</label><div class="ed-chips" id="ed_flav"></div></div>'+
+          '<div class="ed-field"><label>Description</label><textarea id="ed_d"></textarea></div>'+
+          '<div class="ed-err" id="ed_err"></div>'+
+          '<div style="display:flex;gap:8px"><button class="ed-btn pri" id="ed_save" style="flex:1">Add product</button><button class="ed-btn" id="ed_cancel" style="display:none">Cancel</button></div>'+
+        '</div></div>';
+      document.getElementById('ed_c').innerHTML=CATS.map(function(c){return '<option>'+esc(c)+'</option>';}).join('');
+      chips('ed_types',TYPES,false); chips('ed_eff',EFFECTS,true); chips('ed_flav',FLAVOURS,true); setVars(null);
+      document.getElementById('ed_addvar').addEventListener('click',function(){ addVar(); });
+      document.getElementById('ed_save').addEventListener('click', saveProduct);
+      document.getElementById('ed_cancel').addEventListener('click', clearForm);
+      loadRows();
     }
-    function result(ok, info){ var el=document.getElementById('ed_result'); if(!el) return; el.hidden=false;
-      if(ok){ el.innerHTML='<div class="ed-ok">\u2713 Imported '+info+' products \u2014 products.json downloaded</div><div class="ed-steps">Upload <b>products.json</b> to your host, next to the site file, to go live for everyone. Tap <b>Close</b> to preview the menu on this device.</div>'; }
-      else { el.innerHTML='<div class="ed-bad">'+esc(info)+'</div>'; }
+    function loadRows(){ var sb=SB(); if(!sb) return; sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ rows=(res.data||[]); renderList(); pushLive(); }); }
+    function pushLive(){ try{ if(window.__WS&&window.__WS.apply) window.__WS.apply(rows.map(function(r){ return {c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||''}; })); }catch(e){} }
+    function renderList(){ var box=document.getElementById('ed_list'); if(!box) return; var cnt=document.getElementById('ed_count'); if(cnt) cnt.textContent=rows.length;
+      if(!rows.length){ box.innerHTML='<div style="color:var(--dim);font-size:12px;padding:8px 0">No products yet.</div>'; return; }
+      box.innerHTML='';
+      rows.forEach(function(p,i){ var pr=(p.variants&&p.variants.length)?Math.min.apply(null,p.variants.map(function(v){return v.p;})):0;
+        var row=document.createElement('div'); row.className='ed-row';
+        row.innerHTML='<div class="en"><b>'+esc(p.name||'(untitled)')+'</b><small>'+esc(p.category)+(p.type?(' \u00b7 '+esc(p.type)):'')+' \u00b7 from $'+pr+'</small></div>'+
+          '<button data-a="up" aria-label="Up">\u2191</button><button data-a="dn" aria-label="Down">\u2193</button><button data-a="ed">Edit</button><button data-a="del">Del</button>';
+        row.addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; var a=b.getAttribute('data-a');
+          if(a==='ed'){ editing=p.id; loadForm(p); host.scrollTop=0; }
+          else if(a==='del'){ if(confirm('Delete '+(p.name||'this')+'?')) delProduct(p.id); }
+          else if(a==='up'&&i>0){ swap(i,i-1); }
+          else if(a==='dn'&&i<rows.length-1){ swap(i,i+1); }
+        });
+        box.appendChild(row);
+      });
     }
-    function maybeHash(){ if((location.hash||'').toLowerCase()==='#edit') open(); }
+    function chips(id,list,ic){ var el=document.getElementById(id); el.innerHTML=list.map(function(x){return '<button type="button" class="ed-chip" data-v="'+esc(x)+'">'+(ic?icon(x):'')+esc(x)+'</button>';}).join(''); el.addEventListener('click',function(e){ var b=e.target.closest('.ed-chip'); if(b) b.classList.toggle('on'); }); }
+    function chipsGet(id){ return Array.prototype.map.call(document.getElementById(id).querySelectorAll('.ed-chip.on'),function(b){return b.getAttribute('data-v');}); }
+    function chipsSet(id,vals){ var set={}; (vals||[]).forEach(function(v){ if(v) set[String(v).toLowerCase()]=1; }); Array.prototype.forEach.call(document.getElementById(id).querySelectorAll('.ed-chip'),function(b){ b.classList.toggle('on',!!set[b.getAttribute('data-v').toLowerCase()]); }); }
+    function addVar(n,p,q,low){ var d=document.createElement('div'); d.className='ed-var'; d.innerHTML='<input class="vn" placeholder="Size" value="'+(n?esc(n):'')+'"/><input class="vp" type="number" placeholder="$" value="'+(p!=null&&p!==''?p:'')+'"/><input class="vq" type="number" placeholder="Stock" value="'+(q!=null&&q!==''?q:'')+'"/><input class="vl" type="number" placeholder="Low" value="'+(low!=null&&low!==''?low:'')+'"/><button type="button" class="ed-x" aria-label="Remove">\u00d7</button>'; d.querySelector('.ed-x').addEventListener('click',function(){ d.parentNode.removeChild(d); }); document.getElementById('ed_vars').appendChild(d); }
+    function setVars(vs){ var box=document.getElementById('ed_vars'); box.innerHTML=''; if(vs&&vs.length) vs.forEach(function(v){ addVar(v.n,v.p,v.q,v.low); }); else addVar(); }
+    function getVars(){ var out=[]; Array.prototype.forEach.call(document.getElementById('ed_vars').querySelectorAll('.ed-var'),function(r){ var n=r.querySelector('.vn').value.trim(),p=r.querySelector('.vp').value.trim(),q=r.querySelector('.vq').value.trim(),lo=r.querySelector('.vl').value.trim(); if(n&&p!==''&&!isNaN(Number(p))){ var o={n:n,p:Number(p)}; if(q!==''&&!isNaN(Number(q)))o.q=Number(q); if(lo!==''&&!isNaN(Number(lo)))o.low=Number(lo); out.push(o); } }); return out; }
+    function clearForm(){ editing=null; var g=function(i){return document.getElementById(i);}; g('ed_n').value=''; g('ed_c').selectedIndex=0; chipsSet('ed_types',[]); chipsSet('ed_eff',[]); chipsSet('ed_flav',[]); setVars(null); g('ed_d').value=''; g('ed_err').textContent=''; g('ed_ftitle').textContent='Add product'; g('ed_save').textContent='Add product'; g('ed_cancel').style.display='none'; }
+    function loadForm(p){ var g=function(i){return document.getElementById(i);}; g('ed_n').value=p.name||''; g('ed_c').value=p.category||'Flower'; chipsSet('ed_types',splitTags(p.type)); setVars(p.variants); chipsSet('ed_eff',splitTags(p.effects)); chipsSet('ed_flav',splitTags(p.flavours)); g('ed_d').value=p.description||''; g('ed_ftitle').textContent='Edit product'; g('ed_save').textContent='Save changes'; g('ed_cancel').style.display=''; }
+    function formData(){ return { category:document.getElementById('ed_c').value, name:document.getElementById('ed_n').value.trim(), type:chipsGet('ed_types').join(' \u00b7 '), variants:getVars(), effects:chipsGet('ed_eff').join(' \u00b7 '), flavours:chipsGet('ed_flav').join(' \u00b7 '), description:document.getElementById('ed_d').value.trim() }; }
+    function saveProduct(){ var d=formData(), err=document.getElementById('ed_err'); if(!d.name){ err.textContent='Name is required'; return; } if(!d.variants.length){ err.textContent='Add at least one variant with a price'; return; } err.textContent='Saving\u2026'; var sb=SB();
+      if(editing){ sb.from('products').update(d).eq('id',editing).then(function(res){ if(res.error){ err.textContent=res.error.message; } else { clearForm(); loadRows(); } }); }
+      else { d.sort=rows.length?(Math.max.apply(null,rows.map(function(r){return r.sort||0;}))+1):0; sb.from('products').insert(d).then(function(res){ if(res.error){ err.textContent=res.error.message; } else { clearForm(); loadRows(); } }); } }
+    function delProduct(id){ SB().from('products').delete().eq('id',id).then(function(){ if(editing===id) clearForm(); loadRows(); }); }
+    function swap(i,j){ var a=rows[i], b=rows[j], sa=a.sort||0, sbv=b.sort||0; if(sa===sbv) sbv=sa+1; var cli=SB(); Promise.all([ cli.from('products').update({sort:sbv}).eq('id',a.id), cli.from('products').update({sort:sa}).eq('id',b.id) ]).then(function(){ loadRows(); }).catch(function(){ loadRows(); }); }
+    function ordersView(){ document.getElementById('ed_body').innerHTML='<div class="ed-panel"><h3 class="ed-h">Orders</h3><div id="ed_orders">Loading\u2026</div></div>';
+      var box=document.getElementById('ed_orders');
+      box.addEventListener('click', function(e){ var b=e.target.closest('.eo-acts button'); if(!b) return; var id=b.parentNode.getAttribute('data-id'), st=b.getAttribute('data-s'); SB().from('orders').update({status:st}).eq('id',id).then(function(){ var o=ordersCache.filter(function(x){return String(x.id)===String(id);})[0]; if(o) o.status=st; renderOrders(); }); });
+      SB().from('orders').select('*').order('created_at',{ascending:false}).then(function(res){ ordersCache=res.data||[]; renderOrders(); }); }
+    function renderOrders(){ var box=document.getElementById('ed_orders'); if(!box) return; if(!ordersCache.length){ box.innerHTML='<div style="color:var(--dim);font-size:12px">No orders yet.</div>'; return; }
+      box.innerHTML=ordersCache.map(function(o){ var items=(o.items||[]).map(function(it){return esc(it.name)+(it.variant?(' ('+esc(it.variant)+')'):'')+' \u00d7'+it.qty;}).join(', '); var c=o.customer||{}; var when=o.created_at?new Date(o.created_at).toLocaleString():''; var st=esc(o.status||'new');
+        return '<div class="ed-order"><div class="eo-top"><b>'+esc(o.ref||o.id)+'</b><span class="eo-status eo-'+st+'">'+st+'</span></div>'+
+          '<div class="eo-meta">'+esc(when)+' \u00b7 '+esc(o.payment_method||'')+' \u00b7 $'+(o.total||0)+'</div>'+
+          '<div class="eo-items">'+items+'</div>'+
+          '<div class="eo-cust">'+esc(c.name||'')+' \u00b7 '+esc(c.phone||'')+' \u00b7 '+esc(c.email||'')+'<br>'+esc(c.address||'')+' '+esc(c.city||'')+' '+esc(c.province||'')+' '+esc(c.postal||'')+'</div>'+
+          '<div class="eo-acts" data-id="'+esc(o.id)+'"><button data-s="new">New</button><button data-s="paid">Paid</button><button data-s="fulfilled">Fulfilled</button></div></div>';
+      }).join(''); }
+    function maybeHash(){ var h=(location.hash||'').toLowerCase(); if(h==='#admin'||h==='#edit') open(); }
     window.addEventListener('hashchange', maybeHash); maybeHash();
-    var taps=0, tmr=null;
+    var taps=0,tmr=null;
     Array.prototype.forEach.call(document.querySelectorAll('.agebadge'), function(bd){ bd.addEventListener('click', function(){ taps++; clearTimeout(tmr); tmr=setTimeout(function(){taps=0;},1500); if(taps>=5){ taps=0; open(); } }); });
   })();
   </script>
