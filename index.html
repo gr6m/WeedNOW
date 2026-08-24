@@ -151,6 +151,7 @@
   .cp{font-family:var(--mono); font-weight:700; font-size:15px; color:var(--bone)}
   .cadd{width:34px; height:34px; flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; color:var(--paint);
     background:rgba(95,224,126,.08); border:1px solid rgba(95,224,126,.4); font-size:18px; line-height:1; transition:background .2s, color .2s, transform .12s}
+  .cadd.choose svg{width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round}
   .cadd:hover{background:var(--paint); color:#06210f}
   .cadd:active{transform:scale(.9)}
   .cadd.done{background:var(--paint); color:#06210f}
@@ -877,7 +878,7 @@
       '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>'+
       '<div class="ctypes">'+typeBadges(p)+'</div></div>'+
       '<div class="cbody"><h3 class="cn">'+esc(p.n)+'</h3><p class="cmeta">'+esc(p.c)+' &middot; '+esc(metaR)+'</p>'+
-      '<div class="cfoot"><span class="cp">'+(multi?'<em class="fromlbl">from </em>':'')+'$'+mn+'</span><button class="cadd" type="button" aria-label="Add '+esc(p.n)+'">+</button></div></div></article>';
+      '<div class="cfoot"><span class="cp">'+(multi?'<em class="fromlbl">from </em>':'')+'$'+mn+'</span><button class="cadd'+(multi?' choose':'')+'" type="button" aria-label="'+(multi?('Choose options for '+esc(p.n)):('Add '+esc(p.n)))+'">'+(multi?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'+')+'</button></div></div></article>';
   }
   function render(){
     var list=P.filter(function(p){
@@ -898,6 +899,7 @@
     var b=e.target.closest && e.target.closest('.cadd');
     if(b){
       var art=b.closest('.card'); var id=art.getAttribute('data-id'); var pp=pById(id); var av0=availV(pp);
+      if(av0.length>1){ openQuick(pp); return; }
       var key=keyOf(id, (av0[0]||pp.v[0]).n);
       cart[key]=(cart[key]||0)+1; updateCount();
       cartBtn.classList.add('bump'); setTimeout(function(){cartBtn.classList.remove('bump');},260);
