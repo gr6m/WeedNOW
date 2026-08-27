@@ -133,6 +133,8 @@
     overflow:hidden; transition:transform .18s ease-out, border-color .3s, box-shadow .3s; animation:pop .5s both}
   .card:active{transform:scale(.985)}
   .card:hover{transform:translateY(-5px); border-color:rgba(95,224,126,.5); box-shadow:0 18px 44px rgba(0,0,0,.55), 0 0 34px rgba(95,224,126,.12)}
+  .cimg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block; z-index:1}
+  .qimg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block; z-index:1}
   .cvis{--lf:#5fe07e; position:relative; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; overflow:hidden;
     background:radial-gradient(120% 120% at 50% 30%, rgba(95,224,126,.09), rgba(4,7,3,.5) 66%)}
   .cvis::after{content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
@@ -518,6 +520,11 @@
   #editor .ed-key.ghost{background:transparent; border-color:transparent; cursor:default}
   #editor .ed-gate.shake{animation:edshake .44s}
   @keyframes edshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+  #editor .ed-imgrow{display:flex; align-items:center; gap:12px}
+  #editor .ed-thumb{width:72px; height:72px; flex:0 0 auto; border:1px solid var(--line); background:#0d100c center/cover no-repeat}
+  #editor .ed-imgnote{color:var(--dim); font-size:11px; margin-top:6px}
+  #editor .ed-vimg{flex:0 0 auto; width:38px; border:1px solid var(--line); background:transparent center/cover no-repeat; color:var(--dim); cursor:pointer; font-size:14px}
+  #editor .ed-vimg.has{border-color:var(--paint)}
   #editor .ed-note{color:var(--dim); font-size:12px; line-height:1.7; margin:0 0 4px}
   #editor .ed-note b{color:var(--bone)}
   #editor .ed-result{margin-top:16px}
@@ -702,6 +709,7 @@
     <button class="qclose" id="qclose" aria-label="Close">✕</button>
     <div class="qvis" id="qvis">
       <svg class="qleaf" viewBox="0 0 240 260" aria-hidden="true"><use href="#wleaf" id="qleafuse"/></svg>
+      <img class="qimg" id="qimg" alt="" hidden/>
       <div class="ctypes" id="qtype"></div>
     </div>
     <div class="qinfo">
@@ -800,6 +808,8 @@
   function tcol(p){ var a=typesOf(p.t); return TCOL[a[0]]||'#5fe07e'; }
   var CART={'Vapes':'#wvape','Edibles':'#wedible','Pre-Rolls':'#wpreroll','Concentrates':'#wconc'};
   function artFor(p){ return CART[p&&p.c]||'#wleaf'; }
+  function vimg(p, vn){ if(!p) return ''; if(vn){ var vs=p.v||[]; for(var i=0;i<vs.length;i++){ if(vs[i].n===vn && vs[i].img) return vs[i].img; } } return p.img||''; }
+  function setQImg(p, vn){ var im=document.getElementById('qimg'), lf=document.querySelector('#quick .qleaf'); if(!im) return; var u=vimg(p,vn); if(u){ im.src=u; im.alt=p.n||''; im.hidden=false; if(lf) lf.style.visibility='hidden'; } else { im.hidden=true; im.removeAttribute('src'); if(lf) lf.style.visibility=''; } }
   function typeBadges(p){ return typesOf(p.t).map(function(t){ return '<span class="ctype">'+esc(t)+'</span>'; }).join(''); }
   var MENU_ONLY=false; /* set true for menu-only */
   try{ if(MENU_ONLY) document.body.classList.add('menu-only'); }catch(e){}
@@ -875,7 +885,7 @@
   function card(p){
     var av=availV(p), mn=minPrice(p), multi=av.length>1, metaR=multi?(av.length+' options'):(av[0]?av[0].n:'');
     return '<article class="card" data-id="'+p.id+'"><div class="cvis" style="--lf:'+tcol(p)+'">'+
-      '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>'+
+      (p.img? '<img class="cimg" src="'+esc(p.img)+'" alt="'+esc(p.n)+'" loading="lazy"/>' : '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>')+
       '<div class="ctypes">'+typeBadges(p)+'</div></div>'+
       '<div class="cbody"><h3 class="cn">'+esc(p.n)+'</h3><p class="cmeta">'+esc(p.c)+' &middot; '+esc(metaR)+'</p>'+
       '<div class="cfoot"><span class="cp">'+(multi?'<em class="fromlbl">from </em>':'')+'$'+mn+'</span><button class="cadd'+(multi?' choose':'')+'" type="button" aria-label="'+(multi?('Choose options for '+esc(p.n)):('Add '+esc(p.n)))+'">'+(multi?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'+')+'</button></div></div></article>';
@@ -924,7 +934,7 @@
   var quick=document.getElementById('quick'), qscrim=document.getElementById('qscrim'), curQ=null, qQty=1, qVar='', qVarPrice=0;
   function setQty(v){ qQty=Math.max(1, Math.min(99, v||1)); var el=document.getElementById('qqty'); if(el) el.textContent=qQty; }
   Array.prototype.forEach.call(document.querySelectorAll('.qstep'), function(b){ b.addEventListener('click', function(){ setQty(qQty + parseInt(b.getAttribute('data-d'),10)); }); });
-  document.getElementById('qvars').addEventListener('click', function(e){ var b=e.target.closest('.qvar'); if(!b) return; qVar=b.getAttribute('data-vn'); qVarPrice=+b.getAttribute('data-vp'); Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x===b); }); document.getElementById('qp').textContent='$'+qVarPrice; });
+  document.getElementById('qvars').addEventListener('click', function(e){ var b=e.target.closest('.qvar'); if(!b) return; qVar=b.getAttribute('data-vn'); qVarPrice=+b.getAttribute('data-vp'); Array.prototype.forEach.call(this.children, function(x){ x.classList.toggle('on', x===b); }); document.getElementById('qp').textContent='$'+qVarPrice; setQImg(curQ, qVar); });
   document.getElementById('qvars').addEventListener('click', function(e){
     var b=e.target.closest('.vdbtn');
     if(b){ e.stopPropagation(); var dd=document.getElementById('vdd'); var op=dd.classList.toggle('open'); b.setAttribute('aria-expanded', op?'true':'false'); return; }
@@ -935,6 +945,7 @@
     cur.textContent=o.getAttribute('data-vn'); btn2.classList.remove('ph');
     document.getElementById('vdd').classList.remove('open'); btn2.setAttribute('aria-expanded','false');
     document.getElementById('qp').textContent='$'+qVarPrice;
+    setQImg(curQ, qVar);
     var _qa=document.getElementById('qadd'); if(_qa){ _qa.disabled=false; _qa.classList.remove('disabled'); _qa.textContent='Add to cart'; }
   });
   document.addEventListener('click', function(e){ var dd=document.getElementById('vdd'); if(dd && !dd.contains(e.target)) { dd.classList.remove('open'); var bb=document.getElementById('vdbtn'); if(bb) bb.setAttribute('aria-expanded','false'); } });
@@ -945,6 +956,7 @@
     document.getElementById('qmeta').textContent=p.c;
     document.getElementById('qd').textContent=p.d;
     try{ var _u=document.getElementById('qleafuse'); if(_u) _u.setAttribute('href', artFor(p)); }catch(e){}
+    setQImg(p, '');
     var _isFlower=(p.c==='Flower');
     var _eg=document.getElementById('qeff').parentNode, _fg=document.getElementById('qflav').parentNode;
     var _showE=_isFlower&&!!String(p.e||'').trim(), _showF=_isFlower&&!!String(p.f||'').trim();
@@ -1157,7 +1169,7 @@
   /* ---- Supabase keys come from config.js (edit that file, not this one) ---- */
   var SB_URL=(window.SB_URL||''), SB_KEY=(window.SB_KEY||'');
   var _sb=null; try{ if(window.supabase && SB_URL && SB_URL.indexOf('YOUR-')<0){ _sb=window.supabase.createClient(SB_URL, SB_KEY); window.__WS.sb=_sb; } }catch(e){}
-  function _rowToP(r){ return {dbid:r.id,c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||'',grams:(r.stock_grams==null?null:Number(r.stock_grams)),_ca:r.created_at}; }
+  function _rowToP(r){ return {dbid:r.id,img:r.image_url||'',c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||'',grams:(r.stock_grams==null?null:Number(r.stock_grams)),_ca:r.created_at}; }
   function _fromDB(){ return _sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ if(res.error||!res.data) return null; return res.data.map(_rowToP); }); }
   function _fromJSON(){ try{ return fetch('products.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
   function _loadMenu(){ window.__WSLOADING=true; setTimeout(function(){ window.__WSLOADING=false; },8000); if(_sb){ _fromDB().then(function(arr){ if(arr){ reflow(arr); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }); } }).catch(function(){ _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); }); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); } }
@@ -1210,7 +1222,7 @@
     function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
     function icon(n){ try{ if(window.__WS&&window.__WS.icon) return window.__WS.icon(n); }catch(e){} return ''; }
     function splitTags(s){ return String(s||'').split('\u00b7').map(function(x){return x.trim();}).filter(Boolean); }
-    var rows=[], editing=null, ordersCache=[], view='products';
+    var rows=[], editing=null, ordersCache=[], view='products', formImg='';
     function open(){ host.hidden=false; host.removeAttribute('aria-hidden'); document.body.style.overflow='hidden'; boot(); }
     function close(){ host.hidden=true; host.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
     function boot(){ var sb=SB();
@@ -1243,6 +1255,43 @@
       renderView();
     }
     function renderView(){ if(view==='orders') ordersView(); else productsView(); }
+    function shrink(file, maxpx, cb){
+      try{
+        var fr=new FileReader();
+        fr.onload=function(){
+          var im=new Image();
+          im.onload=function(){
+            var w=im.width, h=im.height, m=maxpx||1200;
+            if(w>m||h>m){ if(w>h){ h=Math.round(h*m/w); w=m; } else { w=Math.round(w*m/h); h=m; } }
+            var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+            cv.getContext('2d').drawImage(im,0,0,w,h);
+            cv.toBlob(function(b){ cb(b||file); }, 'image/jpeg', 0.82);
+          };
+          im.onerror=function(){ cb(file); };
+          im.src=fr.result;
+        };
+        fr.onerror=function(){ cb(file); };
+        fr.readAsDataURL(file);
+      }catch(e){ cb(file); }
+    }
+    function uploadImg(file, cb){
+      var sb=SB(); if(!sb){ cb(null,'No database connection'); return; }
+      shrink(file, 1200, function(blob){
+        var name='p'+Date.now()+'-'+Math.floor(Math.random()*10000)+'.jpg';
+        sb.storage.from('product-images').upload(name, blob, {contentType:'image/jpeg', upsert:false}).then(function(res){
+          if(res.error){ cb(null, res.error.message); return; }
+          var pub=sb.storage.from('product-images').getPublicUrl(name);
+          var url=(pub&&pub.data&&pub.data.publicUrl)||'';
+          if(!url){ cb(null,'Could not get image URL'); return; }
+          cb(url,null);
+        }).catch(function(){ cb(null,'Upload failed'); });
+      });
+    }
+    function pickImage(cb){
+      var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+      inp.addEventListener('change', function(){ var f=inp.files&&inp.files[0]; if(!f){ return; } cb('loading',null); uploadImg(f, cb); });
+      inp.click();
+    }
     var STD_SIZES=[{n:'Pound',g:448},{n:'Half Pound',g:224},{n:'Quarter Pound',g:112},{n:'Ounce',g:28},{n:'Half Ounce',g:14},{n:'Quarter Ounce',g:7},{n:'Eighth',g:3.5}];
     function flowerMode(){ var el=document.getElementById('ed_c'); return !!el && el.value==='Flower'; }
     function syncFlowerUI(){ var fm=flowerMode(); ['ed_gramswrap','ed_typewrap','ed_effwrap','ed_flavwrap'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=fm?'':'none'; }); var sd=document.getElementById('ed_stdsizes'); if(sd) sd.style.display=fm?'':'none'; }
@@ -1254,6 +1303,7 @@
         '<div class="ed-panel"><h3 class="ed-h" id="ed_ftitle">Add product</h3>'+
           '<div class="ed-field"><label>Name</label><input id="ed_n"/></div>'+
           '<div class="ed-field"><label>Category</label><select id="ed_c"></select></div>'+
+          '<div class="ed-field"><label>Product image</label><div class="ed-imgrow"><div class="ed-thumb" id="ed_thumb"></div><div><button class="ed-btn" id="ed_pickimg" type="button">Upload image</button> <button class="ed-btn" id="ed_clrimg" type="button">Remove</button><div class="ed-imgnote" id="ed_imgnote"></div></div></div></div>'+
           '<div class="ed-field" id="ed_gramswrap" style="display:none"><label>Grams on hand (whole strain)</label><input id="ed_grams" type="number" step="0.1" placeholder="total grams, e.g. 448"/></div>'+
           '<div class="ed-field" id="ed_typewrap"><label>Type \u2014 multiple ok</label><div class="ed-chips" id="ed_types"></div></div>'+
           '<div class="ed-field"><label>Variants \u2014 size + price</label><div id="ed_vars"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="ed-btn" id="ed_addvar" style="font-size:11px;padding:6px 10px">+ Add variant</button><button class="ed-btn" id="ed_stdsizes" style="font-size:11px;padding:6px 10px;display:none">+ Standard flower sizes</button></div></div>'+
@@ -1264,16 +1314,19 @@
           '<div style="display:flex;gap:8px"><button class="ed-btn pri" id="ed_save" style="flex:1">Add product</button><button class="ed-btn" id="ed_cancel" style="display:none">Cancel</button></div>'+
         '</div></div>';
       document.getElementById('ed_c').innerHTML=CATS.map(function(c){return '<option>'+esc(c)+'</option>';}).join('');
-      chips('ed_types',TYPES,false); chips('ed_eff',EFFECTS,true); chips('ed_flav',FLAVOURS,true); setVars(null); syncFlowerUI();
+      chips('ed_types',TYPES,false); chips('ed_eff',EFFECTS,true); chips('ed_flav',FLAVOURS,true); setVars(null); syncFlowerUI(); setThumb(formImg);
       document.getElementById('ed_c').addEventListener('change',function(){ syncFlowerUI(); setVars(null); });
       document.getElementById('ed_stdsizes').addEventListener('click', stdSizes);
+      document.getElementById('ed_pickimg').addEventListener('click', function(){ var nt=document.getElementById('ed_imgnote');
+        pickImage(function(url,err){ if(url==='loading'){ nt.textContent='Uploading\u2026'; return; } if(err){ nt.textContent='Upload failed: '+err; return; } setThumb(url); }); });
+      document.getElementById('ed_clrimg').addEventListener('click', function(){ setThumb(''); });
       document.getElementById('ed_addvar').addEventListener('click',function(){ addVar(); });
       document.getElementById('ed_save').addEventListener('click', saveProduct);
       document.getElementById('ed_cancel').addEventListener('click', clearForm);
       loadRows();
     }
     function loadRows(){ var sb=SB(); if(!sb) return; sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ rows=(res.data||[]); renderList(); pushLive(); }); }
-    function pushLive(){ try{ if(window.__WS&&window.__WS.apply) window.__WS.apply(rows.map(function(r){ return {dbid:r.id,c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||'',grams:(r.stock_grams==null?null:Number(r.stock_grams)),_ca:r.created_at}; })); }catch(e){} }
+    function pushLive(){ try{ if(window.__WS&&window.__WS.apply) window.__WS.apply(rows.map(function(r){ return {dbid:r.id,img:r.image_url||'',c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||'',grams:(r.stock_grams==null?null:Number(r.stock_grams)),_ca:r.created_at}; })); }catch(e){} }
     function renderList(){ var box=document.getElementById('ed_list'); if(!box) return; var cnt=document.getElementById('ed_count'); if(cnt) cnt.textContent=rows.length;
       if(!rows.length){ box.innerHTML='<div style="color:var(--dim);font-size:12px;padding:8px 0">No products yet.</div>'; return; }
       box.innerHTML='';
@@ -1290,15 +1343,21 @@
         box.appendChild(row);
       });
     }
+    function setThumb(u){ formImg=u||''; var t=document.getElementById('ed_thumb'); if(t) t.style.backgroundImage=formImg?('url("'+formImg+'")'):''; var nt=document.getElementById('ed_imgnote'); if(nt) nt.textContent=formImg?'Image attached':'No image \u2014 stencil art will be used'; }
     function chips(id,list,ic){ var el=document.getElementById(id); el.innerHTML=list.map(function(x){return '<button type="button" class="ed-chip" data-v="'+esc(x)+'">'+(ic?icon(x):'')+esc(x)+'</button>';}).join(''); el.addEventListener('click',function(e){ var b=e.target.closest('.ed-chip'); if(b) b.classList.toggle('on'); }); }
     function chipsGet(id){ return Array.prototype.map.call(document.getElementById(id).querySelectorAll('.ed-chip.on'),function(b){return b.getAttribute('data-v');}); }
     function chipsSet(id,vals){ var set={}; (vals||[]).forEach(function(v){ if(v) set[String(v).toLowerCase()]=1; }); Array.prototype.forEach.call(document.getElementById(id).querySelectorAll('.ed-chip'),function(b){ b.classList.toggle('on',!!set[b.getAttribute('data-v').toLowerCase()]); }); }
-    function addVar(v){ v=v||{}; var fm=flowerMode(); var d=document.createElement('div'); d.className='ed-var'; if(fm){ d.innerHTML='<input class="vn" placeholder="Size" value="'+(v.n?esc(v.n):'')+'"/><input class="vp" type="number" placeholder="$" value="'+(v.p!=null&&v.p!==''?v.p:'')+'"/><input class="vg" type="number" step="0.1" placeholder="grams" value="'+(v.g!=null&&v.g!==''?v.g:'')+'"/><button type="button" class="ed-x" aria-label="Remove">\u00d7</button>'; } else { d.innerHTML='<input class="vn" placeholder="Size" value="'+(v.n?esc(v.n):'')+'"/><input class="vp" type="number" placeholder="$" value="'+(v.p!=null&&v.p!==''?v.p:'')+'"/><input class="vq" type="number" placeholder="Stock" value="'+(v.q!=null&&v.q!==''?v.q:'')+'"/><input class="vl" type="number" placeholder="Low" value="'+(v.low!=null&&v.low!==''?v.low:'')+'"/><button type="button" class="ed-x" aria-label="Remove">\u00d7</button>'; } d.querySelector('.ed-x').addEventListener('click',function(){ d.parentNode.removeChild(d); }); document.getElementById('ed_vars').appendChild(d); }
+    function addVar(v){ v=v||{}; var fm=flowerMode(); var d=document.createElement('div'); d.className='ed-var'; if(fm){ d.innerHTML='<input class="vn" placeholder="Size" value="'+(v.n?esc(v.n):'')+'"/><input class="vp" type="number" placeholder="$" value="'+(v.p!=null&&v.p!==''?v.p:'')+'"/><input class="vg" type="number" step="0.1" placeholder="grams" value="'+(v.g!=null&&v.g!==''?v.g:'')+'"/><button type="button" class="ed-x" aria-label="Remove">\u00d7</button>'; } else { d.innerHTML='<input class="vn" placeholder="Size" value="'+(v.n?esc(v.n):'')+'"/><input class="vp" type="number" placeholder="$" value="'+(v.p!=null&&v.p!==''?v.p:'')+'"/><input class="vq" type="number" placeholder="Stock" value="'+(v.q!=null&&v.q!==''?v.q:'')+'"/><input class="vl" type="number" placeholder="Low" value="'+(v.low!=null&&v.low!==''?v.low:'')+'"/><button type="button" class="ed-x" aria-label="Remove">\u00d7</button>'; } var ib=document.createElement('button'); ib.type='button'; ib.className='ed-vimg'+(v.img?' has':''); ib.title='Variant image'; ib.setAttribute('data-img', v.img||''); ib.innerHTML=v.img?'':'\u25a3';
+      if(v.img) ib.style.backgroundImage='url("'+v.img+'")';
+      ib.addEventListener('click', function(){ if(ib.getAttribute('data-img')){ if(confirm('Remove this variant image?')){ ib.setAttribute('data-img',''); ib.style.backgroundImage=''; ib.className='ed-vimg'; ib.innerHTML='\u25a3'; } return; }
+        pickImage(function(url,err){ if(url==='loading'){ ib.innerHTML='\u2026'; return; } if(err){ ib.innerHTML='\u25a3'; alert('Upload failed: '+err); return; } ib.setAttribute('data-img',url); ib.style.backgroundImage='url("'+url+'")'; ib.className='ed-vimg has'; ib.innerHTML=''; }); });
+      d.insertBefore(ib, d.querySelector('.ed-x'));
+      d.querySelector('.ed-x').addEventListener('click',function(){ d.parentNode.removeChild(d); }); document.getElementById('ed_vars').appendChild(d); }
     function setVars(vs){ var box=document.getElementById('ed_vars'); box.innerHTML=''; if(vs&&vs.length) vs.forEach(function(v){ addVar(v); }); else addVar(); }
-    function getVars(){ var fm=flowerMode(), out=[]; Array.prototype.forEach.call(document.getElementById('ed_vars').querySelectorAll('.ed-var'),function(r){ var n=r.querySelector('.vn').value.trim(), p=r.querySelector('.vp').value.trim(); if(!n||p===''||isNaN(Number(p))) return; var o={n:n,p:Number(p)}; if(fm){ var gg=r.querySelector('.vg').value.trim(); if(gg!==''&&!isNaN(Number(gg)))o.g=Number(gg); } else { var q=r.querySelector('.vq').value.trim(), lo=r.querySelector('.vl').value.trim(); if(q!==''&&!isNaN(Number(q)))o.q=Number(q); if(lo!==''&&!isNaN(Number(lo)))o.low=Number(lo); } out.push(o); }); return out; }
-    function clearForm(){ editing=null; var g=function(i){return document.getElementById(i);}; g('ed_n').value=''; g('ed_c').selectedIndex=0; syncFlowerUI(); var gr=g('ed_grams'); if(gr) gr.value=''; chipsSet('ed_types',[]); chipsSet('ed_eff',[]); chipsSet('ed_flav',[]); setVars(null); g('ed_d').value=''; g('ed_err').textContent=''; g('ed_ftitle').textContent='Add product'; g('ed_save').textContent='Add product'; g('ed_cancel').style.display='none'; }
-    function loadForm(p){ var g=function(i){return document.getElementById(i);}; g('ed_n').value=p.name||''; g('ed_c').value=p.category||'Flower'; syncFlowerUI(); var gr=g('ed_grams'); if(gr) gr.value=(p.stock_grams==null?'':p.stock_grams); chipsSet('ed_types',splitTags(p.type)); setVars(p.variants); chipsSet('ed_eff',splitTags(p.effects)); chipsSet('ed_flav',splitTags(p.flavours)); g('ed_d').value=p.description||''; g('ed_ftitle').textContent='Edit product'; g('ed_save').textContent='Save changes'; g('ed_cancel').style.display=''; }
-    function formData(){ var fm=(document.getElementById('ed_c').value==='Flower'); var d={ category:document.getElementById('ed_c').value, name:document.getElementById('ed_n').value.trim(), type:chipsGet('ed_types').join(' \u00b7 '), variants:getVars(), effects:(fm?chipsGet('ed_eff').join(' \u00b7 '):''), flavours:(fm?chipsGet('ed_flav').join(' \u00b7 '):''), description:document.getElementById('ed_d').value.trim() }; d.type=(fm?d.type:''); if(fm){ var gv=document.getElementById('ed_grams').value.trim(); d.stock_grams=(gv===''?null:Number(gv)); } else { d.stock_grams=null; } return d; }
+    function getVars(){ var fm=flowerMode(), out=[]; Array.prototype.forEach.call(document.getElementById('ed_vars').querySelectorAll('.ed-var'),function(r){ var n=r.querySelector('.vn').value.trim(), p=r.querySelector('.vp').value.trim(); if(!n||p===''||isNaN(Number(p))) return; var o={n:n,p:Number(p)}; if(fm){ var gg=r.querySelector('.vg').value.trim(); if(gg!==''&&!isNaN(Number(gg)))o.g=Number(gg); } else { var q=r.querySelector('.vq').value.trim(), lo=r.querySelector('.vl').value.trim(); if(q!==''&&!isNaN(Number(q)))o.q=Number(q); if(lo!==''&&!isNaN(Number(lo)))o.low=Number(lo); } var _ib=r.querySelector('.ed-vimg'); if(_ib && _ib.getAttribute('data-img')) o.img=_ib.getAttribute('data-img'); out.push(o); }); return out; }
+    function clearForm(){ editing=null; setThumb(''); var g=function(i){return document.getElementById(i);}; g('ed_n').value=''; g('ed_c').selectedIndex=0; syncFlowerUI(); var gr=g('ed_grams'); if(gr) gr.value=''; chipsSet('ed_types',[]); chipsSet('ed_eff',[]); chipsSet('ed_flav',[]); setVars(null); g('ed_d').value=''; g('ed_err').textContent=''; g('ed_ftitle').textContent='Add product'; g('ed_save').textContent='Add product'; g('ed_cancel').style.display='none'; }
+    function loadForm(p){ setThumb(p.image_url||''); var g=function(i){return document.getElementById(i);}; g('ed_n').value=p.name||''; g('ed_c').value=p.category||'Flower'; syncFlowerUI(); var gr=g('ed_grams'); if(gr) gr.value=(p.stock_grams==null?'':p.stock_grams); chipsSet('ed_types',splitTags(p.type)); setVars(p.variants); chipsSet('ed_eff',splitTags(p.effects)); chipsSet('ed_flav',splitTags(p.flavours)); g('ed_d').value=p.description||''; g('ed_ftitle').textContent='Edit product'; g('ed_save').textContent='Save changes'; g('ed_cancel').style.display=''; }
+    function formData(){ var fm=(document.getElementById('ed_c').value==='Flower'); var d={ category:document.getElementById('ed_c').value, name:document.getElementById('ed_n').value.trim(), type:chipsGet('ed_types').join(' \u00b7 '), variants:getVars(), effects:(fm?chipsGet('ed_eff').join(' \u00b7 '):''), flavours:(fm?chipsGet('ed_flav').join(' \u00b7 '):''), description:document.getElementById('ed_d').value.trim(), image_url:(formImg||null) }; d.type=(fm?d.type:''); if(fm){ var gv=document.getElementById('ed_grams').value.trim(); d.stock_grams=(gv===''?null:Number(gv)); } else { d.stock_grams=null; } return d; }
     function saveProduct(){ var d=formData(), err=document.getElementById('ed_err'); if(!d.name){ err.textContent='Name is required'; return; } if(!d.variants.length){ err.textContent='Add at least one variant with a price'; return; } err.textContent='Saving\u2026'; var sb=SB();
       if(editing){ sb.from('products').update(d).eq('id',editing).then(function(res){ if(res.error){ err.textContent=res.error.message; } else { clearForm(); loadRows(); } }); }
       else { d.sort=rows.length?(Math.max.apply(null,rows.map(function(r){return r.sort||0;}))+1):0; sb.from('products').insert(d).then(function(res){ if(res.error){ err.textContent=res.error.message; } else { clearForm(); loadRows(); } }); } }
