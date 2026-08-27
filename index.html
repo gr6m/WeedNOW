@@ -809,7 +809,7 @@
   var CART={'Vapes':'#wvape','Edibles':'#wedible','Pre-Rolls':'#wpreroll','Concentrates':'#wconc'};
   function artFor(p){ return CART[p&&p.c]||'#wleaf'; }
   function vimg(p, vn){ if(!p) return ''; if(vn){ var vs=p.v||[]; for(var i=0;i<vs.length;i++){ if(vs[i].n===vn && vs[i].img) return vs[i].img; } } return p.img||''; }
-  function setQImg(p, vn){ var im=document.getElementById('qimg'), lf=document.querySelector('#quick .qleaf'); if(!im) return; var u=vimg(p,vn); if(u){ im.src=u; im.alt=p.n||''; im.hidden=false; if(lf) lf.style.visibility='hidden'; } else { im.hidden=true; im.removeAttribute('src'); if(lf) lf.style.visibility=''; } }
+  function setQImg(p, vn){ var im=document.getElementById('qimg'), lf=document.querySelector('#quick .qleaf'); if(!im) return; var u=vimg(p,vn); if(u){ im.onerror=function(){ im.hidden=true; if(lf) lf.style.visibility=''; }; im.onload=function(){ if(lf) lf.style.visibility='hidden'; }; im.src=u; im.alt=p.n||''; im.hidden=false; } else { im.hidden=true; im.removeAttribute('src'); if(lf) lf.style.visibility=''; } }
   function typeBadges(p){ return typesOf(p.t).map(function(t){ return '<span class="ctype">'+esc(t)+'</span>'; }).join(''); }
   var MENU_ONLY=false; /* set true for menu-only */
   try{ if(MENU_ONLY) document.body.classList.add('menu-only'); }catch(e){}
@@ -885,7 +885,7 @@
   function card(p){
     var av=availV(p), mn=minPrice(p), multi=av.length>1, metaR=multi?(av.length+' options'):(av[0]?av[0].n:'');
     return '<article class="card" data-id="'+p.id+'"><div class="cvis" style="--lf:'+tcol(p)+'">'+
-      (p.img? '<img class="cimg" src="'+esc(p.img)+'" alt="'+esc(p.n)+'" loading="lazy"/>' : '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>')+
+      (p.img? '<img class="cimg" src="'+esc(p.img)+'" alt="'+esc(p.n)+'" loading="lazy" onerror="this.remove()"/><svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>' : '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>')+
       '<div class="ctypes">'+typeBadges(p)+'</div></div>'+
       '<div class="cbody"><h3 class="cn">'+esc(p.n)+'</h3><p class="cmeta">'+esc(p.c)+' &middot; '+esc(metaR)+'</p>'+
       '<div class="cfoot"><span class="cp">'+(multi?'<em class="fromlbl">from </em>':'')+'$'+mn+'</span><button class="cadd'+(multi?' choose':'')+'" type="button" aria-label="'+(multi?('Choose options for '+esc(p.n)):('Add '+esc(p.n)))+'">'+(multi?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>':'+')+'</button></div></div></article>';
