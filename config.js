@@ -20,10 +20,10 @@ window.DELIVERY_LOCAL_FEE  = 15;     // local delivery fee ($)
 window.DELIVERY_SHIP_FEE   = 25;     // Canada-wide shipping fee ($)
 window.DELIVERY_FREE_AT    = 150;    // order total for free delivery/shipping ($)
 
-window.DELIVERY_LOCAL_NAME = 'Same-day local delivery';
+window.DELIVERY_LOCAL_NAME = 'Lower mainland local delivery';
 window.DELIVERY_LOCAL_DESC = 'Today';
 window.DELIVERY_SHIP_NAME  = 'Canada-wide shipping';
-window.DELIVERY_SHIP_DESC  = '2-5 business days · discreet';
+window.DELIVERY_SHIP_DESC  = '2-5 business days';
 
 window.DELIVERY_LOCAL_ON   = true;   // set false to hide local delivery
 window.DELIVERY_SHIP_ON    = true;   // set false to hide shipping
