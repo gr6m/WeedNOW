@@ -667,7 +667,7 @@
     <a class="brand" role="button" tabindex="0" aria-label="WeedNOW home">
       <span class="bw">Weed<span class="st">NOW</span></span>
     </a>
-    <span class="hstatus"><i></i>Same-day local &middot; Canada-wide</span>
+    <span class="hstatus" id="hstatus"><i></i>Same-day local &middot; Canada-wide</span>
     <div class="hr">
       <span class="agebadge" aria-label="19 plus">19+</span>
       <button class="cartbtn" id="cartBtn" type="button" aria-label="Open cart">
@@ -1038,6 +1038,12 @@
   };
   var FREE_AT=DLV.freeAt;
   function feeFor(m){ return orderSub()>=FREE_AT ? 0 : (m==='shipping'?DLV.shipFee:DLV.localFee); }
+  function applyHeaderCfg(){
+    var el=document.getElementById('hstatus'); if(!el) return;
+    if(window.HEADER_STATUS){ el.innerHTML='<i></i>'+esc(window.HEADER_STATUS); return; }
+    var parts=[]; if(DLV.localOn) parts.push(DLV.localName); if(DLV.shipOn) parts.push(DLV.shipName);
+    if(parts.length) el.innerHTML='<i></i>'+esc(parts.join(' \u00b7 '));
+  }
   function applyDeliveryCfg(){
     var box=document.getElementById('comethod'); if(!box) return;
     var lb=box.querySelector('input[value="delivery"]'), sb=box.querySelector('input[value="shipping"]');
@@ -1231,7 +1237,7 @@
         qrBlock='<div class="coqr" id="coqr" data-uri="'+esc(_uri)+'"><div class="coqr-t">Scan to pay</div><div id="coqrbox"></div><div class="coqr-h">Opens your '+cn+' wallet'+(haveAmt?' with the amount filled in':'')+'</div></div>';
       }
     }
-    var mtxt=m==='shipping'?'Canada-wide shipping':'Same-day local delivery';
+    var mtxt=m==='shipping'?DLV.shipName:DLV.localName;
     coconfirm.innerHTML='<div class="cocheck">\u2713</div><h3>Order placed</h3><div class="coorder">'+ord+' \u00b7 '+mtxt+'</div>'+recap+'<div class="copay-note">'+note+'</div><div class="copaywrap">'+qrBlock+'<div class="cocopy">'+rows+'</div></div><button class="codone" id="codone" type="button">Done</button>';
     coform.style.display='none'; coconfirm.hidden=false;
     try{
@@ -1247,7 +1253,7 @@
     if(e.target.closest('#codone')){ closeCheckout(); setTimeout(function(){ coform.style.display=''; coconfirm.hidden=true; coform.reset(); syncOpts(); }, 320); }
   });
 
-  render(); updateCount();
+  render(); updateCount(); try{ applyHeaderCfg(); applyDeliveryCfg(); }catch(e){}
   function reflow(arr){ if(!Array.isArray(arr)) return; window.__WSLOADING=false; P.length=0; arr.forEach(function(x){ P.push(migrateP(x)); }); reindex(); buildTabs(); render(); updateCount(); }
   window.__WS={ get:function(){ return P; }, apply:reflow, icon:iconFor };
   /* ---- Supabase keys come from config.js (edit that file, not this one) ---- */
