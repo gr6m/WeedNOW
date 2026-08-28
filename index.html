@@ -324,10 +324,18 @@
   .corow{display:flex; align-items:center; gap:10px; border:1px solid var(--line); padding:10px 12px; text-align:left}
   .crl{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); flex:0 0 auto; min-width:54px}
   .crv{flex:1; font-family:var(--mono); font-size:12px; color:var(--bone); word-break:break-all}
-  .coqr{margin-top:14px; text-align:center}
+  .coqr{text-align:center}
   .coqr-t{font-family:var(--mono); font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
-  .coqr #coqrbox{display:inline-block; padding:10px; background:#e9e7db; line-height:0}
-  .coqr img, .coqr canvas{display:block}
+  .coqr #coqrbox{display:inline-block; padding:12px; background:#fff; line-height:0}
+  .coqr #coqrbox canvas{display:block}
+  .coqr #coqrbox img{display:block; max-width:100%; height:auto}
+  .coqr-h{font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; color:var(--dim); margin-top:8px; line-height:1.6}
+  .copaywrap{display:flex; flex-direction:column; gap:16px; margin-top:14px}
+  @media(min-width:720px){
+    .copaywrap{flex-direction:row-reverse; align-items:flex-start; gap:24px; max-width:620px; margin-left:auto; margin-right:auto}
+    .copaywrap .coqr{flex:0 0 auto}
+    .copaywrap .cocopy{flex:1 1 auto; min-width:0}
+  }
   .craddr{word-break:break-all; font-size:11px; line-height:1.5}
   .crb{flex:0 0 auto; font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--paint); background:transparent; border:1px solid rgba(95,224,126,.4); padding:6px 10px; cursor:pointer; transition:background .15s, color .15s}
   .crb:hover{background:var(--paint); color:#06210f}
@@ -1193,7 +1201,7 @@
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var vn=(p.v.length>1?ck.vn:''); recap+='<div class="cosumrow"><span>'+esc(p.n)+(vn?(' ('+esc(vn)+')'):'')+' &times;'+cart[k]+'</span><span>'+amt(vprice(p,ck.vn)*cart[k])+'</span></div>'; });
     recap+='<div class="cosumrow"><span>'+(m==='shipping'?'Shipping':'Delivery')+'</span><span>'+(fee?amt(fee):'Free')+'</span></div>';
     recap+='<div class="cosumrow tot"><span>Total</span><span>'+amt(grand)+'</span></div></div>';
-    var note, rows='<div class="corow"><span class="crl">Order</span><span class="crv">'+ord+'</span><button class="crb" type="button" data-copy="'+ord+'">Copy</button></div>';
+    var note, qrBlock='', rows='<div class="corow"><span class="crl">Order</span><span class="crv">'+ord+'</span><button class="crb" type="button" data-copy="'+ord+'">Copy</button></div>';
     if(pay==='etransfer'){
       var eaddr=PAYCFG.etransfer;
       if(eaddr){
@@ -1216,14 +1224,19 @@
       }
       rows+='<div class="corow"><span class="crl">Amount</span><span class="crv">'+(haveAmt?astr:('$'+grand+' CAD equivalent'))+'</span><button class="crb" type="button" data-copy="'+(haveAmt?astr:grand)+'">Copy</button></div>';
       if(!haveAmt) rows+='<div class="corow"><span class="crl">Order total</span><span class="crv">$'+grand+' CAD</span><button class="crb" type="button" data-copy="'+grand+'">Copy</button></div>';
-      if(waddr) rows+='<div class="coqr" id="coqr" data-addr="'+esc(waddr)+'"><div class="coqr-t">Scan to pay</div><div id="coqrbox"></div></div>';
+      if(waddr){
+        var _uri = (pay==='bitcoin')
+          ? ('bitcoin:'+waddr+(haveAmt?('?amount='+(grand/RATE.bitcoin).toFixed(8)):''))
+          : ('monero:'+waddr+(haveAmt?('?tx_amount='+(grand/RATE.monero).toFixed(12)):''));
+        qrBlock='<div class="coqr" id="coqr" data-uri="'+esc(_uri)+'"><div class="coqr-t">Scan to pay</div><div id="coqrbox"></div><div class="coqr-h">Opens your '+cn+' wallet'+(haveAmt?' with the amount filled in':'')+'</div></div>';
+      }
     }
     var mtxt=m==='shipping'?'Canada-wide shipping':'Same-day local delivery';
-    coconfirm.innerHTML='<div class="cocheck">\u2713</div><h3>Order placed</h3><div class="coorder">'+ord+' \u00b7 '+mtxt+'</div>'+recap+'<div class="copay-note">'+note+'</div><div class="cocopy">'+rows+'</div><button class="codone" id="codone" type="button">Done</button>';
+    coconfirm.innerHTML='<div class="cocheck">\u2713</div><h3>Order placed</h3><div class="coorder">'+ord+' \u00b7 '+mtxt+'</div>'+recap+'<div class="copay-note">'+note+'</div><div class="copaywrap">'+qrBlock+'<div class="cocopy">'+rows+'</div></div><button class="codone" id="codone" type="button">Done</button>';
     coform.style.display='none'; coconfirm.hidden=false;
     try{
       var qb=document.getElementById('coqrbox'), qw=document.getElementById('coqr');
-      if(qb && qw && window.QRCode){ new QRCode(qb, {text:qw.getAttribute('data-addr'), width:150, height:150, colorDark:'#0a0c09', colorLight:'#e9e7db', correctLevel:QRCode.CorrectLevel.M}); }
+      if(qb && qw && window.QRCode){ qb.innerHTML=''; new QRCode(qb, {text:qw.getAttribute('data-uri'), width:168, height:168, colorDark:'#000000', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M}); }
       else if(qw){ qw.style.display='none'; }
     }catch(e){ var q2=document.getElementById('coqr'); if(q2) q2.style.display='none'; }
     cart={}; updateCount(); renderCart();
@@ -1445,8 +1458,12 @@
         if(b.getAttribute('data-a')==='del'){
           var o0=ordersCache.filter(function(x){return String(x.id)===String(id);})[0];
           if(!confirm('Delete order '+((o0&&o0.ref)||'')+'? This cannot be undone.\n\nNote: deleting does NOT put stock back.')) return;
-          SB().from('orders').delete().eq('id',id).then(function(res){
+          SB().from('orders').delete().eq('id',id).select().then(function(res){
             if(res&&res.error){ alert('Delete failed: '+res.error.message); return; }
+            if(!res||!res.data||!res.data.length){
+              alert('The order was not deleted.\n\nYour database is blocking deletes. Run supabase-fix-order-delete.sql in the Supabase SQL editor, then try again.');
+              return;
+            }
             ordersCache=ordersCache.filter(function(x){ return String(x.id)!==String(id); }); renderOrders();
           }); return;
         } if(b.getAttribute('data-a')==='process'){ b.disabled=true; b.textContent='Processing\u2026'; SB().rpc('process_order',{oid:id}).then(function(res){ if(res&&res.error){ alert('Process failed: '+res.error.message); b.disabled=false; b.textContent='Process'; return; } refreshLive(); ordersView(); }); return; } var st=b.getAttribute('data-s'); SB().from('orders').update({status:st}).eq('id',id).then(function(){ var o=ordersCache.filter(function(x){return String(x.id)===String(id);})[0]; if(o) o.status=st; renderOrders(); }); });
