@@ -751,8 +751,8 @@
         </section>
         <section class="cosec"><h3 class="colab">Delivery method</h3>
           <div class="coopts" id="comethod">
-            <label class="coopt sel"><input type="radio" name="method" value="delivery" checked/><div class="coopt-t">Same-day local delivery</div><div class="coopt-s">Lower Mainland &middot; today</div></label>
-            <label class="coopt"><input type="radio" name="method" value="shipping"/><div class="coopt-t">Canada-wide shipping</div><div class="coopt-s">2&ndash;5 business days &middot; discreet</div></label>
+            <label class="coopt sel"><input type="radio" name="method" value="delivery" checked/><div class="coopt-t">Same-day local delivery</div><div class="coopt-s">Today</div></label>
+            <label class="coopt"><input type="radio" name="method" value="shipping"/><div class="coopt-t">Canada-wide shipping</div><div class="coopt-s">2-5 business days &middot; discreet</div></label>
           </div>
         </section>
         <section class="cosec"><h3 class="colab">Your details</h3>
@@ -1009,7 +1009,30 @@
   function keyOf(id,vn){ return id+'::'+vn; }
   function ckey(k){ var i=k.indexOf('::'); return i<0?{id:k,vn:''}:{id:k.slice(0,i), vn:k.slice(i+2)}; }
   function cprod(k){ return pById(ckey(k).id); }
-  var FREE_AT=150;
+  var DLV={
+    localFee:  (window.DELIVERY_LOCAL_FEE   != null ? Number(window.DELIVERY_LOCAL_FEE)   : 12),
+    shipFee:   (window.DELIVERY_SHIP_FEE    != null ? Number(window.DELIVERY_SHIP_FEE)    : 15),
+    freeAt:    (window.DELIVERY_FREE_AT     != null ? Number(window.DELIVERY_FREE_AT)     : 150),
+    localName: (window.DELIVERY_LOCAL_NAME  || 'Same-day local delivery'),
+    localDesc: (window.DELIVERY_LOCAL_DESC  || 'Today'),
+    shipName:  (window.DELIVERY_SHIP_NAME   || 'Canada-wide shipping'),
+    shipDesc:  (window.DELIVERY_SHIP_DESC   || '2-5 business days \u00b7 discreet'),
+    localOn:   (window.DELIVERY_LOCAL_ON    !== false),
+    shipOn:    (window.DELIVERY_SHIP_ON     !== false)
+  };
+  var FREE_AT=DLV.freeAt;
+  function feeFor(m){ return orderSub()>=FREE_AT ? 0 : (m==='shipping'?DLV.shipFee:DLV.localFee); }
+  function applyDeliveryCfg(){
+    var box=document.getElementById('comethod'); if(!box) return;
+    var lb=box.querySelector('input[value="delivery"]'), sb=box.querySelector('input[value="shipping"]');
+    if(lb){ var L=lb.closest('.coopt'); L.style.display=DLV.localOn?'':'none';
+      L.querySelector('.coopt-t').textContent=DLV.localName;
+      L.querySelector('.coopt-s').innerHTML=esc(DLV.localDesc)+' \u00b7 $'+DLV.localFee; if(!DLV.localOn) lb.checked=false; }
+    if(sb){ var S=sb.closest('.coopt'); S.style.display=DLV.shipOn?'':'none';
+      S.querySelector('.coopt-t').textContent=DLV.shipName;
+      S.querySelector('.coopt-s').innerHTML=esc(DLV.shipDesc)+' \u00b7 $'+DLV.shipFee; if(!DLV.shipOn) sb.checked=false; }
+    if(!box.querySelector('input[name="method"]:checked')){ var f=box.querySelector('.coopt:not([style*="none"]) input'); if(f) f.checked=true; }
+  }
   function updateShip(total){
     var ship=document.getElementById('ship'); if(!ship) return;
     ship.style.display='block';
@@ -1103,7 +1126,7 @@
     return '$'+cad;
   }
   function recalcSummary(){
-    var sub=orderSub(), m=selMethod(), pay=selPay(), fee=sub>=FREE_AT?0:(m==='shipping'?15:12), grand=sub+fee, rows='';
+    var sub=orderSub(), m=selMethod(), pay=selPay(), fee=feeFor(m), grand=sub+fee, rows='';
     function amt(v){ return fmtPayable(v, pay); }
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var q=cart[k], pr=vprice(p,ck.vn), vl=p.v.length>1?(' ('+esc(ck.vn)+')'):''; rows+='<div class="cosumrow"><span>'+esc(p.n)+vl+' &times;'+q+'</span><span>'+amt(pr*q)+'</span></div>'; });
     rows+='<div class="cosumrow"><span>Subtotal</span><span>'+amt(sub)+'</span></div>';
@@ -1121,7 +1144,7 @@
     document.getElementById('cosum').innerHTML=rows; document.getElementById('copayable').textContent=amt(grand); return grand;
   }
   function syncOpts(){ Array.prototype.forEach.call(coform.querySelectorAll('.coopt'), function(o){ var i=o.querySelector('input'); o.classList.toggle('sel', !!(i&&i.checked)); }); }
-  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
+  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
   function closeCheckout(){ coview.classList.remove('open'); }
   coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); syncOpts(); });
   document.getElementById('coback').addEventListener('click', function(){ closeCheckout(); openCart(); });
@@ -1153,7 +1176,7 @@
   });
   function placeOrder(){
     var m=selMethod(), pay=selPay();
-    var sub=orderSub(), fee=sub>=FREE_AT?0:(m==='shipping'?15:12), grand=sub+fee;
+    var sub=orderSub(), fee=feeFor(m), grand=sub+fee;
     function amt(v){ return fmtPayable(v, pay); }
     var email=(coform.querySelector('[name="email"]')||{}).value||'';
     var ord='WN-'+Math.floor(100000+Math.random()*900000);
