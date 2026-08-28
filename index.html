@@ -324,6 +324,10 @@
   .corow{display:flex; align-items:center; gap:10px; border:1px solid var(--line); padding:10px 12px; text-align:left}
   .crl{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); flex:0 0 auto; min-width:54px}
   .crv{flex:1; font-family:var(--mono); font-size:12px; color:var(--bone); word-break:break-all}
+  .coqr{margin-top:14px; text-align:center}
+  .coqr-t{font-family:var(--mono); font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
+  .coqr #coqrbox{display:inline-block; padding:10px; background:#e9e7db; line-height:0}
+  .coqr img, .coqr canvas{display:block}
   .craddr{word-break:break-all; font-size:11px; line-height:1.5}
   .crb{flex:0 0 auto; font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--paint); background:transparent; border:1px solid rgba(95,224,126,.4); padding:6px 10px; cursor:pointer; transition:background .15s, color .15s}
   .crb:hover{background:var(--paint); color:#06210f}
@@ -543,6 +547,9 @@
   #editor .eo-fulfilled{color:var(--dim)}
   #editor .eo-processing{color:#5ab0ff; border-color:#5ab0ff}
   #editor .eo-meta{color:var(--dim); font-size:11px; margin:6px 0}
+  #editor .eo-del{color:#d8626f !important; border-color:rgba(216,98,111,.45) !important}
+  #editor .eo-del:hover{color:#fff !important; background:#d80621; border-color:#d80621 !important}
+  #editor .eo-quote.warn{color:#d8935a}
   #editor .eo-quote{font-size:11px; color:#e9c94a; margin:0 0 6px; letter-spacing:.02em}
   #editor .eo-items{font-size:12px; margin-bottom:6px}
   #editor .eo-cust{color:var(--dim); font-size:11px; line-height:1.6; margin-bottom:8px}
@@ -553,6 +560,7 @@
 <script>try{if(localStorage.getItem('ws_age_ok')==='1')document.documentElement.classList.add('verified');}catch(e){}</script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="hero-open">
 <script>try{document.documentElement.classList.add('hero-lock');}catch(e){}</script>
@@ -1197,17 +1205,27 @@
       rows+='<div class="corow"><span class="crl">Amount</span><span class="crv">$'+grand+'</span><button class="crb" type="button" data-copy="'+grand+'">Copy</button></div>';
     } else {
       var cn=pay==='bitcoin'?'Bitcoin':'Monero', astr=fmtPayable(grand,pay), waddr=(pay==='bitcoin'?PAYCFG.bitcoin:PAYCFG.monero);
+      var haveAmt=(astr.indexOf('\u2014')<0);
       if(waddr){
-        note='Send the exact amount below to the '+cn+' address shown, and include your order number as a reference. Your order ships once payment confirms.';
+        note = haveAmt
+          ? ('Send '+astr+' to the '+cn+' address below, then include your order number '+ord+' as a reference. Your order ships once payment confirms.')
+          : ('Send the CAD equivalent of $'+grand+' to the '+cn+' address below and include order '+ord+' as a reference. We could not fetch a live rate just now \u2014 we will confirm the exact amount with you before dispatch.');
         rows+='<div class="corow"><span class="crl">'+cn+' address</span><span class="crv craddr">'+esc(waddr)+'</span><button class="crb" type="button" data-copy="'+esc(waddr)+'">Copy</button></div>';
       } else {
         note='Your order is saved. We will contact you with '+cn+' payment details to complete it.';
       }
-      rows+='<div class="corow"><span class="crl">Amount</span><span class="crv">'+astr+'</span><button class="crb" type="button" data-copy="'+astr+'">Copy</button></div>';
+      rows+='<div class="corow"><span class="crl">Amount</span><span class="crv">'+(haveAmt?astr:('$'+grand+' CAD equivalent'))+'</span><button class="crb" type="button" data-copy="'+(haveAmt?astr:grand)+'">Copy</button></div>';
+      if(!haveAmt) rows+='<div class="corow"><span class="crl">Order total</span><span class="crv">$'+grand+' CAD</span><button class="crb" type="button" data-copy="'+grand+'">Copy</button></div>';
+      if(waddr) rows+='<div class="coqr" id="coqr" data-addr="'+esc(waddr)+'"><div class="coqr-t">Scan to pay</div><div id="coqrbox"></div></div>';
     }
     var mtxt=m==='shipping'?'Canada-wide shipping':'Same-day local delivery';
     coconfirm.innerHTML='<div class="cocheck">\u2713</div><h3>Order placed</h3><div class="coorder">'+ord+' \u00b7 '+mtxt+'</div>'+recap+'<div class="copay-note">'+note+'</div><div class="cocopy">'+rows+'</div><button class="codone" id="codone" type="button">Done</button>';
     coform.style.display='none'; coconfirm.hidden=false;
+    try{
+      var qb=document.getElementById('coqrbox'), qw=document.getElementById('coqr');
+      if(qb && qw && window.QRCode){ new QRCode(qb, {text:qw.getAttribute('data-addr'), width:150, height:150, colorDark:'#0a0c09', colorLight:'#e9e7db', correctLevel:QRCode.CorrectLevel.M}); }
+      else if(qw){ qw.style.display='none'; }
+    }catch(e){ var q2=document.getElementById('coqr'); if(q2) q2.style.display='none'; }
     cart={}; updateCount(); renderCart();
   }
   coconfirm.addEventListener('click', function(e){
@@ -1403,18 +1421,44 @@
       else { d.sort=rows.length?(Math.max.apply(null,rows.map(function(r){return r.sort||0;}))+1):0; sb.from('products').insert(d).then(function(res){ if(res.error){ err.textContent=res.error.message; } else { clearForm(); loadRows(); } }); } }
     function delProduct(id){ SB().from('products').delete().eq('id',id).then(function(){ if(editing===id) clearForm(); loadRows(); }); }
     function swap(i,j){ var a=rows[i], b=rows[j], sa=a.sort||0, sbv=b.sort||0; if(sa===sbv) sbv=sa+1; var cli=SB(); Promise.all([ cli.from('products').update({sort:sbv}).eq('id',a.id), cli.from('products').update({sort:sa}).eq('id',b.id) ]).then(function(){ loadRows(); }).catch(function(){ loadRows(); }); }
+    var ADMRATE={bitcoin:null,monero:null};
+    function admFetchRates(cb){
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,monero&vs_currencies=cad',{cache:'no-store'})
+        .then(function(r){ return r.ok?r.json():null; })
+        .then(function(d){ if(d&&d.bitcoin&&d.monero){ ADMRATE.bitcoin=d.bitcoin.cad; ADMRATE.monero=d.monero.cad; } if(cb) cb(); })
+        .catch(function(){ if(cb) cb(); });
+    }
+    function cryptoLine(o){
+      var pm=o.payment_method;
+      if(pm!=='bitcoin'&&pm!=='monero') return '';
+      if(o.quote_amount && o.quote_amount.indexOf('\u2014')<0){
+        return '<div class="eo-quote">Send '+esc(o.quote_amount)+(o.quote_rate?(' &middot; quoted @ $'+Math.round(o.quote_rate).toLocaleString()+' CAD'):'')+(o.quote_at?(' &middot; '+new Date(o.quote_at).toLocaleString()):'')+'</div>';
+      }
+      var r=ADMRATE[pm];
+      if(!r) return '<div class="eo-quote warn">No rate stored for this order &mdash; check the live price to confirm the amount.</div>';
+      var amt=(pm==='bitcoin')?((o.total/r).toFixed(6)+' BTC'):((o.total/r).toFixed(4)+' XMR');
+      return '<div class="eo-quote warn">No rate stored &middot; at today\u2019s price that is about '+esc(amt)+'</div>';
+    }
     function ordersView(){ document.getElementById('ed_body').innerHTML='<div class="ed-panel"><h3 class="ed-h">Orders</h3><div id="ed_orders">Loading\u2026</div></div>';
       var box=document.getElementById('ed_orders');
-      box.addEventListener('click', function(e){ var b=e.target.closest('.eo-acts button'); if(!b||b.disabled) return; var id=b.parentNode.getAttribute('data-id'); if(b.getAttribute('data-a')==='process'){ b.disabled=true; b.textContent='Processing\u2026'; SB().rpc('process_order',{oid:id}).then(function(res){ if(res&&res.error){ alert('Process failed: '+res.error.message); b.disabled=false; b.textContent='Process'; return; } refreshLive(); ordersView(); }); return; } var st=b.getAttribute('data-s'); SB().from('orders').update({status:st}).eq('id',id).then(function(){ var o=ordersCache.filter(function(x){return String(x.id)===String(id);})[0]; if(o) o.status=st; renderOrders(); }); });
-      SB().from('orders').select('*').order('created_at',{ascending:false}).then(function(res){ ordersCache=res.data||[]; renderOrders(); }); }
+      box.addEventListener('click', function(e){ var b=e.target.closest('.eo-acts button'); if(!b||b.disabled) return; var id=b.parentNode.getAttribute('data-id');
+        if(b.getAttribute('data-a')==='del'){
+          var o0=ordersCache.filter(function(x){return String(x.id)===String(id);})[0];
+          if(!confirm('Delete order '+((o0&&o0.ref)||'')+'? This cannot be undone.\n\nNote: deleting does NOT put stock back.')) return;
+          SB().from('orders').delete().eq('id',id).then(function(res){
+            if(res&&res.error){ alert('Delete failed: '+res.error.message); return; }
+            ordersCache=ordersCache.filter(function(x){ return String(x.id)!==String(id); }); renderOrders();
+          }); return;
+        } if(b.getAttribute('data-a')==='process'){ b.disabled=true; b.textContent='Processing\u2026'; SB().rpc('process_order',{oid:id}).then(function(res){ if(res&&res.error){ alert('Process failed: '+res.error.message); b.disabled=false; b.textContent='Process'; return; } refreshLive(); ordersView(); }); return; } var st=b.getAttribute('data-s'); SB().from('orders').update({status:st}).eq('id',id).then(function(){ var o=ordersCache.filter(function(x){return String(x.id)===String(id);})[0]; if(o) o.status=st; renderOrders(); }); });
+      SB().from('orders').select('*').order('created_at',{ascending:false}).then(function(res){ ordersCache=res.data||[]; renderOrders(); admFetchRates(function(){ renderOrders(); }); }); }
     function renderOrders(){ var box=document.getElementById('ed_orders'); if(!box) return; if(!ordersCache.length){ box.innerHTML='<div style="color:var(--dim);font-size:12px">No orders yet.</div>'; return; }
       box.innerHTML=ordersCache.map(function(o){ var items=(o.items||[]).map(function(it){return esc(it.name)+(it.variant?(' ('+esc(it.variant)+')'):'')+' \u00d7'+it.qty;}).join(', '); var c=o.customer||{}; var when=o.created_at?new Date(o.created_at).toLocaleString():''; var st=esc(o.status||'new');
         return '<div class="ed-order"><div class="eo-top"><b>'+esc(o.ref||o.id)+'</b><span class="eo-status eo-'+st+'">'+st+'</span></div>'+
           '<div class="eo-meta">'+esc(when)+' \u00b7 '+esc(o.payment_method||'')+' \u00b7 $'+(o.total||0)+'</div>'+
-          (o.quote_amount?('<div class="eo-quote">Quoted '+esc(o.quote_amount)+(o.quote_rate?(' @ $'+Math.round(o.quote_rate).toLocaleString()+' CAD'):'')+(o.quote_at?(' \u00b7 '+new Date(o.quote_at).toLocaleString()):'')+'</div>'):'')+
+          cryptoLine(o)+
           '<div class="eo-items">'+items+'</div>'+
           '<div class="eo-cust">'+esc(c.name||'')+' \u00b7 '+esc(c.phone||'')+' \u00b7 '+esc(c.email||'')+'<br>'+esc(c.address||'')+' '+esc(c.city||'')+' '+esc(c.province||'')+' '+esc(c.postal||'')+'</div>'+
-          '<div class="eo-acts" data-id="'+esc(o.id)+'">'+(o.stock_applied?'<button disabled style="opacity:.5">Processed \u2713</button>':'<button data-a="process">Process</button>')+'<button data-s="paid">Paid</button><button data-s="fulfilled">Fulfilled</button></div></div>';
+          '<div class="eo-acts" data-id="'+esc(o.id)+'">'+(o.stock_applied?'<button disabled style="opacity:.5">Processed \u2713</button>':'<button data-a="process">Process</button>')+'<button data-s="paid">Paid</button><button data-s="fulfilled">Fulfilled</button><button data-a="del" class="eo-del">Delete</button></div></div>';
       }).join(''); }
     function maybeHash(){ var h=(location.hash||'').toLowerCase(); if(h==='#admin'||h==='#edit') open(); }
     window.addEventListener('hashchange', maybeHash); maybeHash();
