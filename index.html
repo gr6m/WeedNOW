@@ -285,6 +285,7 @@
   .cobody{max-width:600px; margin:0 auto; padding:clamp(18px,4vw,28px) clamp(14px,4vw,24px) 60px}
   .cosec{margin-bottom:26px}
   .colab{margin:0 0 12px; font-family:var(--mono); font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim)}
+  .costep[data-step="3"] .cosum{border:1px solid var(--line); background:var(--panel); padding:16px 16px 6px; margin-bottom:18px}
   .cosum{border:1px solid var(--line); padding:14px 16px}
   .cosumrow{display:flex; justify-content:space-between; gap:12px; font-family:var(--mono); font-size:12px; color:#c9ccc0; padding:5px 0}
   .cosumrow.tot{border-top:1px solid var(--line); margin-top:6px; padding-top:12px; color:var(--bone); font-weight:700; font-size:14px}
@@ -322,6 +323,27 @@
   .coage span{font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:#c9ccc0; line-height:1.5}
   .coage.err span{color:var(--red)}
   .coerr{font-family:var(--mono); font-size:11px; letter-spacing:.04em; color:var(--red); margin-bottom:14px; min-height:14px}
+  .costeps{display:flex; align-items:center; gap:6px; margin:0 0 22px}
+  .costep-i{flex:1; display:flex; align-items:center; gap:8px; min-width:0; opacity:.4; transition:opacity .25s}
+  .costep-i.on, .costep-i.done{opacity:1}
+  .costep-i.done{cursor:pointer}
+  .costep-i i{flex:0 0 auto; width:26px; height:26px; border-radius:50%; border:1px solid var(--line); display:inline-flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:11px; font-style:normal; color:var(--dim); transition:all .25s}
+  .costep-i.on i{border-color:var(--paint); color:var(--paint); box-shadow:0 0 14px rgba(95,224,126,.25)}
+  .costep-i.done i{background:var(--paint); border-color:var(--paint); color:#06210f}
+  .costep-i.done i::before{content:"\2713"}
+  .costep-i.done i{font-size:0}
+  .costep-i.done i::before{font-size:12px}
+  .costep-i span{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .costep-i.on span{color:var(--bone)}
+  @media(max-width:460px){ .costep-i:not(.on) span{display:none} }
+  .costep{animation:costepin .28s ease}
+  @keyframes costepin{from{opacity:0; transform:translateX(10px)}to{opacity:1; transform:none}}
+  .costep-h{font-family:var(--mono); font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); margin:20px 0 10px}
+  .conav{display:flex; gap:10px; align-items:center}
+  .cobackbtn{flex:0 0 auto; font-family:var(--cond); font-size:15px; letter-spacing:.06em; text-transform:uppercase; color:var(--bone);
+    background:transparent; border:1px solid var(--line); padding:16px 20px; cursor:pointer; transition:border-color .2s, color .2s}
+  .cobackbtn:hover{border-color:var(--paint); color:var(--paint)}
   .coplace{width:100%; color:#06210f; background:var(--paint); border:none; padding:16px; cursor:pointer; font-family:var(--cond); font-size:17px; letter-spacing:.06em; text-transform:uppercase; transition:box-shadow .2s}
   .coplace:hover{box-shadow:0 0 26px rgba(95,224,126,.45)}
   .coconfirm{text-align:center; padding:36px 8px}
@@ -777,38 +799,54 @@
       <h2>Checkout</h2>
     </div>
     <div class="cobody">
+      <div class="costeps" id="costeps">
+        <div class="costep-i on" data-s="1"><i>1</i><span>Delivery</span></div>
+        <div class="costep-i" data-s="2"><i>2</i><span>Payment</span></div>
+        <div class="costep-i" data-s="3"><i>3</i><span>Review</span></div>
+      </div>
       <form id="coform" novalidate>
-        <section class="cosec"><h3 class="colab">Order</h3><div class="cosum" id="cosum"></div></section>
-        <section class="cosec"><h3 class="colab">Payment</h3>
-          <div class="copaywarn" id="copaywarn" style="display:none">Online payment isn\u2019t set up yet \u2014 please contact us to complete your order.</div>
+
+        <div class="costep" data-step="1">
+          <div class="cogrid">
+            <div class="cofield full"><label>Full name</label><input name="name" autocomplete="name" required/></div>
+            <div class="cofield full"><label>Street address</label><input name="addr" autocomplete="address-line1" required/></div>
+            <div class="cofield"><label>City</label><input name="city" autocomplete="address-level2" required/></div>
+            <div class="cofield"><label>Province</label><select name="prov" required><option value="" disabled selected>Select</option><option>AB</option><option>BC</option><option>MB</option><option>NB</option><option>NL</option><option>NS</option><option>NT</option><option>NU</option><option>ON</option><option>PE</option><option>QC</option><option>SK</option><option>YT</option></select></div>
+            <div class="cofield full"><label>Postal code</label><input name="postal" autocomplete="postal-code" required/></div>
+          </div>
+          <div class="cozone" id="cozone" style="display:none"></div>
+          <div class="coopts" id="comethod">
+            <label class="coopt sel"><input type="radio" name="method" value="delivery" checked/><div class="coopt-t">Same-day local delivery</div><div class="coopt-s">Today</div></label>
+            <label class="coopt"><input type="radio" name="method" value="shipping"/><div class="coopt-t">Canada-wide shipping</div><div class="coopt-s">2-5 business days &middot; discreet</div></label>
+          </div>
+          <div class="coslots" id="coslots" style="display:none"><div class="coslots-t">Choose a delivery window</div><div class="coslots-g" id="coslotsg"></div><div class="coid">Have your ID ready &mdash; our driver verifies 19+ at the door.</div></div>
+        </div>
+
+        <div class="costep" data-step="2" hidden>
+          <div class="cogrid">
+            <div class="cofield"><label>Email</label><input name="email" type="email" autocomplete="email" required/></div>
+            <div class="cofield"><label>Phone</label><input name="phone" type="tel" autocomplete="tel" required/></div>
+          </div>
+          <div class="costep-h">How you&rsquo;ll pay</div>
+          <div class="copaywarn" id="copaywarn" style="display:none">Online payment isn&rsquo;t set up yet &mdash; please contact us to complete your order.</div>
           <div class="coopts" id="copay">
             <label class="coopt sel"><input type="radio" name="pay" value="etransfer" checked/><svg class="pmi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.4"/><text x="12" y="16.8" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="13" fill="currentColor">$</text></svg><span class="coopt-t">e-Transfer</span></label>
             <label class="coopt"><input type="radio" name="pay" value="bitcoin"/><svg class="pmi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.4"/><g fill="currentColor" transform="rotate(12 12 12)"><rect x="9.7" y="4" width="1.5" height="2.9"/><rect x="12.4" y="4" width="1.5" height="2.9"/><rect x="9.7" y="17.1" width="1.5" height="2.9"/><rect x="12.4" y="17.1" width="1.5" height="2.9"/><path d="M8.3 7h4.8c1.9 0 3.1 1 3.1 2.6 0 1-.6 1.8-1.5 2.1 1.1.3 1.9 1 1.9 2.3 0 1.8-1.4 2.8-3.5 2.8H8.3V7zm2.2 1.9v2.3h2.1c.9 0 1.4-.4 1.4-1.1s-.5-1.2-1.4-1.2h-2.1zm0 4v2.6h2.4c1 0 1.5-.5 1.5-1.3 0-.8-.6-1.3-1.6-1.3h-2.3z"/></g></svg><span class="coopt-t">Bitcoin</span></label>
             <label class="coopt"><input type="radio" name="pay" value="monero"/><svg class="pmi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.4"/><path fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" d="M6.9 16.8V7.4L12 14.4l5.1-7v9.4"/></svg><span class="coopt-t">Monero</span></label>
           </div>
-        </section>
-        <section class="cosec"><h3 class="colab">Your details</h3>
-          <div class="cogrid">
-            <div class="cofield full"><label>Full name</label><input name="name" autocomplete="name" required/></div>
-            <div class="cofield"><label>Email</label><input name="email" type="email" autocomplete="email" required/></div>
-            <div class="cofield"><label>Phone</label><input name="phone" type="tel" autocomplete="tel" required/></div>
-            <div class="cofield full"><label>Street address</label><input name="addr" autocomplete="address-line1" required/></div>
-            <div class="cofield"><label>City</label><input name="city" autocomplete="address-level2" required/></div>
-            <div class="cofield"><label>Province</label><select name="prov" required><option value="" disabled selected>Select</option><option>AB</option><option>BC</option><option>MB</option><option>NB</option><option>NL</option><option>NS</option><option>NT</option><option>NU</option><option>ON</option><option>PE</option><option>QC</option><option>SK</option><option>YT</option></select></div>
-            <div class="cofield"><label>Postal code</label><input name="postal" autocomplete="postal-code" required/></div>
-          </div>
-        </section>
-        <section class="cosec"><h3 class="colab">Delivery method</h3>
-          <div class="cozone" id="cozone" style="display:none"></div>
-          <div class="coslots" id="coslots" style="display:none"><div class="coslots-t">Choose a delivery window</div><div class="coslots-g" id="coslotsg"></div><div class="coid">Have your ID ready &mdash; our driver verifies 19+ at the door.</div></div>
-          <div class="coopts" id="comethod">
-            <label class="coopt sel"><input type="radio" name="method" value="delivery" checked/><div class="coopt-t">Same-day local delivery</div><div class="coopt-s">Today</div></label>
-            <label class="coopt"><input type="radio" name="method" value="shipping"/><div class="coopt-t">Canada-wide shipping</div><div class="coopt-s">2-5 business days &middot; discreet</div></label>
-          </div>
-        </section>
-        <label class="coage"><input type="checkbox" name="age" required/><span>I confirm I am 19 years of age or older and agree to the terms.</span></label>
+        </div>
+
+        <div class="costep" data-step="3" hidden>
+          <div class="cosum" id="cosum"></div>
+          <label class="coage"><input type="checkbox" name="age" required/><span>I confirm I am 19 years of age or older and agree to the terms.</span></label>
+        </div>
+
         <div class="coerr" id="coerr"></div>
-        <button class="coplace" id="coplace" type="submit">Place order &middot; <span id="copayable">$0</span></button>
+        <div class="conav">
+          <button class="cobackbtn" id="coprev" type="button" hidden>Back</button>
+          <button class="coplace" id="conext" type="button">Continue</button>
+          <button class="coplace" id="coplace" type="submit" hidden>Place order &middot; <span id="copayable">$0</span></button>
+        </div>
       </form>
       <div class="coconfirm" id="coconfirm" hidden></div>
     </div>
@@ -1246,10 +1284,10 @@
     document.getElementById('cosum').innerHTML=rows; document.getElementById('copayable').textContent=amt(grand); return grand;
   }
   function syncOpts(){ Array.prototype.forEach.call(coform.querySelectorAll('.coopt'), function(o){ var i=o.querySelector('input'); o.classList.toggle('sel', !!(i&&i.checked)); }); }
-  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncZone(); syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
-  function closeCheckout(){ pickedSlot=''; coview.classList.remove('open'); }
+  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncZone(); syncPayMethods(); gotoStep(1); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
+  function closeCheckout(){ pickedSlot=''; try{ gotoStep(1); }catch(_){} coview.classList.remove('open'); }
   coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); if(e.target.name==='method') renderSlots(); if(e.target.name==='city') syncZone(); syncOpts(); });
-  coform.addEventListener('input', function(e){ if(e.target.name==='city') syncZone(); });
+  coform.addEventListener('input', function(e){ if(e.target.name==='city') syncZone(); var w=e.target.closest&&e.target.closest('.cofield'); if(w&&w.classList.contains('err')&&validField(e.target)) w.classList.remove('err'); });
   document.addEventListener('click', function(e){ var b=e.target&&e.target.closest?e.target.closest('.coslot'):null; if(!b) return;
     pickedSlot=b.getAttribute('data-slot');
     var g=document.getElementById('coslotsg'); if(g) Array.prototype.forEach.call(g.children,function(x){ x.classList.toggle('on', x===b); });
@@ -1270,18 +1308,61 @@
     if(fe){ fe.addEventListener('blur', function(){ if(this.value.trim()) setFErr(this, !isEmail(this.value)); }); }
     Array.prototype.forEach.call(coform.querySelectorAll('input,select'), function(f){ f.addEventListener('focus', function(){ setFErr(f, false); }); });
   })();
-  coform.addEventListener('submit', function(e){ e.preventDefault();
-    var firstBad=null;
-    Array.prototype.forEach.call(coform.querySelectorAll('[required]'), function(f){
-      var v=f.type==='checkbox'?f.checked:(f.value.trim()!=='');
-      if(v && f.name==='email') v=isEmail(f.value);
-      if(v && f.name==='postal') v=isPostal(f.value);
-      if(v && f.name==='phone') v=f.value.replace(/\D/g,'').length>=10;
-      var wrap=f.closest('.cofield')||f.closest('.coage'); if(wrap) wrap.classList.toggle('err', !v);
-      if(!v && !firstBad) firstBad=f;
+  var coStep=1;
+  function stepEls(){ return coform.querySelectorAll('.costep'); }
+  function fieldsIn(step){ var el=coform.querySelector('.costep[data-step="'+step+'"]'); return el?el.querySelectorAll('[required]'):[]; }
+  function validField(f){
+    var v=f.type==='checkbox'?f.checked:(String(f.value).trim()!=='');
+    if(v && f.name==='email') v=isEmail(f.value);
+    if(v && f.name==='postal') v=isPostal(f.value);
+    if(v && f.name==='phone') v=f.value.replace(/\D/g,'').length>=10;
+    return v;
+  }
+  function validateStep(step, mark){
+    var bad=null;
+    Array.prototype.forEach.call(fieldsIn(step), function(f){
+      var v=validField(f);
+      var wrap=f.closest('.cofield')||f.closest('.coage'); if(wrap&&mark) wrap.classList.toggle('err', !v);
+      if(!v && !bad) bad=f;
     });
+    return bad;
+  }
+  function gotoStep(nx){
+    coStep=nx;
+    Array.prototype.forEach.call(stepEls(), function(el){ el.hidden = (el.getAttribute('data-step')!==String(nx)); });
+    Array.prototype.forEach.call(document.querySelectorAll('.costep-i'), function(el){
+      var d=+el.getAttribute('data-s');
+      el.classList.toggle('on', d===nx); el.classList.toggle('done', d<nx);
+    });
+    document.getElementById('coprev').hidden = (nx===1);
+    document.getElementById('conext').hidden = (nx===3);
+    document.getElementById('coplace').hidden = (nx!==3);
+    document.getElementById('coerr').textContent='';
+    if(nx===3){ recalcSummary(); }
+    if(nx===2){ syncPayMethods(); }
+    var body=document.querySelector('.cobody'); if(body) body.scrollTop=0;
+    var cv=document.getElementById('checkoutview'); if(cv) cv.scrollTop=0;
+  }
+  document.getElementById('conext').addEventListener('click', function(){
     var err=document.getElementById('coerr');
-    if(firstBad){ err.textContent='Please complete the highlighted fields correctly and confirm you are 19+.'; try{ firstBad.focus(); }catch(_){} return; }
+    var bad=validateStep(coStep, true);
+    if(bad){ err.textContent='Please complete the highlighted fields.'; try{ bad.focus(); }catch(_){} return; }
+    if(coStep===1 && slotRequired() && !pickedSlot){
+      err.textContent='Please choose a delivery window.';
+      var sb2=document.getElementById('coslots'); if(sb2){ sb2.classList.add('err'); try{ sb2.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
+      return;
+    }
+    gotoStep(coStep+1);
+  });
+  document.getElementById('coprev').addEventListener('click', function(){ if(coStep>1) gotoStep(coStep-1); });
+  document.querySelectorAll('.costep-i').forEach(function(el){
+    el.addEventListener('click', function(){ var d=+el.getAttribute('data-s'); if(d<coStep) gotoStep(d); });
+  });
+  coform.addEventListener('submit', function(e){ e.preventDefault();
+    var firstBad=null, badStep=0;
+    for(var st=1; st<=3; st++){ var b=validateStep(st, true); if(b && !firstBad){ firstBad=b; badStep=st; } }
+    var err=document.getElementById('coerr');
+    if(firstBad){ if(badStep && badStep!==coStep) gotoStep(badStep); err.textContent='Please complete the highlighted fields correctly and confirm you are 19+.'; try{ firstBad.focus(); }catch(_){} return; }
     if(slotRequired() && !pickedSlot){
       err.textContent='Please choose a delivery window.';
       var sb2=document.getElementById('coslots'); if(sb2){ sb2.classList.add('err'); try{ sb2.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
