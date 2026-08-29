@@ -289,6 +289,16 @@
   .cosumrow{display:flex; justify-content:space-between; gap:12px; font-family:var(--mono); font-size:12px; color:#c9ccc0; padding:5px 0}
   .cosumrow.tot{border-top:1px solid var(--line); margin-top:6px; padding-top:12px; color:var(--bone); font-weight:700; font-size:14px}
   .copaywarn{border:1px solid #e9c94a; color:#e9c94a; font-family:var(--mono); font-size:11px; line-height:1.7; letter-spacing:.04em; padding:12px 14px; margin-bottom:12px}
+  .cozone{border:1px solid var(--line); color:var(--dim); font-family:var(--mono); font-size:11px; line-height:1.7; letter-spacing:.04em; padding:11px 13px; margin-bottom:12px}
+  .coslots{margin:14px 0 4px}
+  .coslots-t{font-family:var(--mono); font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
+  .coslots-g{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:8px}
+  .coslot{font-family:var(--mono); font-size:12px; letter-spacing:.03em; color:var(--bone); background:#0d100c; border:1px solid var(--line); padding:11px 8px; cursor:pointer; text-align:center; transition:border-color .2s, color .2s}
+  .coslot:hover{border-color:rgba(95,224,126,.5)}
+  .coslot.on{border-color:var(--paint); color:var(--paint)}
+  .coslot small{display:block; color:var(--dim); font-size:9px; letter-spacing:.1em; text-transform:uppercase; margin-top:3px}
+  .coslot.on small{color:var(--paint)}
+  .coid{font-family:var(--mono); font-size:10px; letter-spacing:.05em; color:var(--dim); margin-top:10px; line-height:1.6}
   .coopts{display:flex; flex-direction:column; gap:10px}
   .coopt{position:relative; display:block; cursor:pointer; border:1px solid var(--line); padding:14px 16px; transition:border-color .2s, background .2s}
   .coopt.sel{border-color:var(--paint); background:rgba(95,224,126,.05)}
@@ -534,6 +544,17 @@
   #editor .ed-key.ghost{background:transparent; border-color:transparent; cursor:default}
   #editor .ed-gate.shake{animation:edshake .44s}
   @keyframes edshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+  #editor .ed-row2{display:flex; gap:12px}
+  #editor .ed-row2 .ed-field{flex:1; min-width:0}
+  #editor .dv-day{border:1px solid var(--line); padding:11px 12px; margin-bottom:9px; background:var(--panel)}
+  #editor .dv-dh{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+  #editor .dv-dh b{font-family:var(--cond); font-size:15px; letter-spacing:.03em; text-transform:uppercase}
+  #editor .dv-dh span{display:flex; gap:6px}
+  #editor .dv-mini{font-size:10px !important; padding:5px 8px !important}
+  #editor .dv-slot{display:flex; gap:6px; margin-bottom:6px}
+  #editor .dv-slot .dv-lb{flex:1; min-width:0}
+  #editor .dv-slot .dv-st{width:66px; flex:0 0 auto}
+  #editor .dv-none{color:var(--dim); font-size:11px; padding:3px 0}
   #editor .ed-imgrow{display:flex; align-items:center; gap:12px}
   #editor .ed-thumb{width:72px; height:72px; flex:0 0 auto; border:1px solid var(--line); background:#0d100c center/cover no-repeat}
   #editor .ed-imgnote{color:var(--dim); font-size:11px; margin-top:6px}
@@ -766,6 +787,8 @@
           </div>
         </section>
         <section class="cosec"><h3 class="colab">Delivery method</h3>
+          <div class="cozone" id="cozone" style="display:none"></div>
+          <div class="coslots" id="coslots" style="display:none"><div class="coslots-t">Choose a delivery window</div><div class="coslots-g" id="coslotsg"></div><div class="coid">Have your ID ready \u2014 our driver verifies 19+ at the door.</div></div>
           <div class="coopts" id="comethod">
             <label class="coopt sel"><input type="radio" name="method" value="delivery" checked/><div class="coopt-t">Same-day local delivery</div><div class="coopt-s">Today</div></label>
             <label class="coopt"><input type="radio" name="method" value="shipping"/><div class="coopt-t">Canada-wide shipping</div><div class="coopt-s">2-5 business days &middot; discreet</div></label>
@@ -1026,16 +1049,38 @@
   function ckey(k){ var i=k.indexOf('::'); return i<0?{id:k,vn:''}:{id:k.slice(0,i), vn:k.slice(i+2)}; }
   function cprod(k){ return pById(ckey(k).id); }
   var DLV={
-    localFee:  (window.DELIVERY_LOCAL_FEE   != null ? Number(window.DELIVERY_LOCAL_FEE)   : 12),
-    shipFee:   (window.DELIVERY_SHIP_FEE    != null ? Number(window.DELIVERY_SHIP_FEE)    : 15),
-    freeAt:    (window.DELIVERY_FREE_AT     != null ? Number(window.DELIVERY_FREE_AT)     : 150),
-    localName: (window.DELIVERY_LOCAL_NAME  || 'Same-day local delivery'),
-    localDesc: (window.DELIVERY_LOCAL_DESC  || 'Today'),
-    shipName:  (window.DELIVERY_SHIP_NAME   || 'Canada-wide shipping'),
-    shipDesc:  (window.DELIVERY_SHIP_DESC   || '2-5 business days \u00b7 discreet'),
-    localOn:   (window.DELIVERY_LOCAL_ON    !== false),
-    shipOn:    (window.DELIVERY_SHIP_ON     !== false)
+    localOn:true, shipOn:true, localFee:12, shipFee:15, freeAt:150, leadMinutes:45,
+    localName:'Same-day local delivery', shipName:'Canada-wide shipping',
+    shipDesc:'2-5 business days \u00b7 discreet',
+    cities:['Langley','Surrey','Abbotsford','Delta','Maple Ridge'],
+    schedule:{}
   };
+  var NEIGH={
+    'cloverdale':'surrey','fleetwood':'surrey','newton':'surrey','guildford':'surrey','whalley':'surrey','south surrey':'surrey','port kells':'surrey',
+    'walnut grove':'langley','willoughby':'langley','murrayville':'langley','brookswood':'langley','fort langley':'langley','aldergrove':'langley','langley city':'langley','langley township':'langley',
+    'ladner':'delta','tsawwassen':'delta','north delta':'delta',
+    'pitt meadows':'maple ridge','haney':'maple ridge',
+    'clearbrook':'abbotsford','matsqui':'abbotsford'
+  };
+  function normCity(v){ var x=String(v||'').trim().toLowerCase().replace(/[.,]/g,''); return NEIGH[x]||x; }
+  function inZone(city){
+    if(!DLV.localOn) return false;
+    var c=normCity(city); if(!c) return false;
+    return (DLV.cities||[]).some(function(x){ return normCity(x)===c; });
+  }
+  function slotsForToday(){
+    var now=new Date(), lead=(DLV.leadMinutes||0), out=[];
+    function build(d, dayOffset){
+      var list=(DLV.schedule&&DLV.schedule[String(d)])||[];
+      list.forEach(function(sl){
+        var when=new Date(now.getFullYear(),now.getMonth(),now.getDate()+dayOffset,sl.start||0,0,0);
+        if(when.getTime()-now.getTime() >= lead*60000) out.push({label:sl.label, day:dayOffset, when:when});
+      });
+    }
+    build(now.getDay(), 0);
+    if(!out.length){ var t=new Date(now.getTime()+86400000); build(t.getDay(), 1); }
+    return out;
+  }
   var FREE_AT=DLV.freeAt;
   function feeFor(m){ return orderSub()>=FREE_AT ? 0 : (m==='shipping'?DLV.shipFee:DLV.localFee); }
   function applyHeaderCfg(){
@@ -1043,6 +1088,34 @@
     if(window.HEADER_STATUS){ el.innerHTML='<i></i>'+esc(window.HEADER_STATUS); return; }
     var parts=[]; if(DLV.localOn) parts.push(DLV.localName); if(DLV.shipOn) parts.push(DLV.shipName);
     if(parts.length) el.innerHTML='<i></i>'+esc(parts.join(' \u00b7 '));
+  }
+  var pickedSlot='';
+  function cityField(){ var el=coform.querySelector('[name="city"]'); return el?el.value:''; }
+  function renderSlots(){
+    var box=document.getElementById('coslots'), g=document.getElementById('coslotsg'); if(!box||!g) return;
+    var m=selMethod();
+    if(m!=='delivery'){ box.style.display='none'; return; }
+    var list=slotsForToday();
+    if(!list.length){ box.style.display='none'; pickedSlot=''; return; }
+    box.style.display='';
+    g.innerHTML=list.map(function(sl,i){
+      var lbl=(sl.day===0?'Today':'Tomorrow');
+      return '<button type="button" class="coslot'+(sl.label+'|'+lbl===pickedSlot?' on':'')+'" data-slot="'+esc(sl.label+'|'+lbl)+'">'+esc(sl.label)+'<small>'+lbl+'</small></button>';
+    }).join('');
+  }
+  function syncZone(){
+    var city=cityField(), note=document.getElementById('cozone');
+    var box=document.getElementById('comethod'); if(!box) return;
+    var lb=box.querySelector('input[value="delivery"]'); if(!lb) return;
+    var L=lb.closest('.coopt');
+    var ok=inZone(city);
+    if(!city){ L.style.display=DLV.localOn?'':'none'; if(note) note.style.display='none'; renderSlots(); return; }
+    L.style.display=ok?'':'none';
+    if(!ok){
+      if(lb.checked){ lb.checked=false; var sb=box.querySelector('input[value="shipping"]'); if(sb) sb.checked=true; }
+      if(note){ note.style.display=''; note.innerHTML='Same-day delivery isn\u2019t available in '+esc(city)+' yet \u2014 Canada-wide shipping is available.'; }
+    } else if(note){ note.style.display='none'; }
+    syncOpts(); recalcSummary(); renderSlots();
   }
   function applyDeliveryCfg(){
     var box=document.getElementById('comethod'); if(!box) return;
@@ -1166,9 +1239,14 @@
     document.getElementById('cosum').innerHTML=rows; document.getElementById('copayable').textContent=amt(grand); return grand;
   }
   function syncOpts(){ Array.prototype.forEach.call(coform.querySelectorAll('.coopt'), function(o){ var i=o.querySelector('input'); o.classList.toggle('sel', !!(i&&i.checked)); }); }
-  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
+  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncZone(); syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
   function closeCheckout(){ coview.classList.remove('open'); }
-  coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); syncOpts(); });
+  coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); if(e.target.name==='method') renderSlots(); if(e.target.name==='city') syncZone(); syncOpts(); });
+  coform.addEventListener('input', function(e){ if(e.target.name==='city') syncZone(); });
+  document.addEventListener('click', function(e){ var b=e.target&&e.target.closest?e.target.closest('.coslot'):null; if(!b) return;
+    pickedSlot=b.getAttribute('data-slot');
+    var g=document.getElementById('coslotsg'); if(g) Array.prototype.forEach.call(g.children,function(x){ x.classList.toggle('on', x===b); });
+  });
   document.getElementById('coback').addEventListener('click', function(){ closeCheckout(); openCart(); });
   function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
   function isPostal(v){ return /^[A-Za-z]\d[A-Za-z]\s?\d[A-Za-z]\d$/.test((v||'').trim()); }
@@ -1202,7 +1280,7 @@
     function amt(v){ return fmtPayable(v, pay); }
     var email=(coform.querySelector('[name="email"]')||{}).value||'';
     var ord='WN-'+Math.floor(100000+Math.random()*900000);
-    if(_sb){ try{ var _items=[]; Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var _vv=null; for(var _i=0;_i<p.v.length;_i++){ if(p.v[_i].n===ck.vn){ _vv=p.v[_i]; break; } } _items.push({product_id:p.dbid||null, name:p.n, variant:(p.v.length>1?ck.vn:(_vv?_vv.n:'')), qty:cart[k], price:vprice(p,ck.vn), grams:(p.c==='Flower'&&_vv&&_vv.g!=null)?_vv.g:null}); }); var _f=function(n){ var el=coform.querySelector('[name="'+n+'"]'); return el?String(el.value).trim():''; }; _sb.from('orders').insert({ ref:ord, items:_items, subtotal:sub, delivery_method:m, delivery_fee:fee, total:grand, currency:'CAD', payment_method:pay, quote_rate:((pay==='bitcoin')?RATE.bitcoin:((pay==='monero')?RATE.monero:null)), quote_amount:((pay==='bitcoin'||pay==='monero')?fmtPayable(grand,pay):null), quote_at:((pay==='bitcoin'||pay==='monero')&&RATE_AT?new Date(RATE_AT).toISOString():null), customer:{name:_f('name'),email:_f('email'),phone:_f('phone'),address:_f('address'),city:_f('city'),province:_f('province'),postal:_f('postal')}, status:'new' }).then(function(){}, function(){}); }catch(e){} }
+    if(_sb){ try{ var _items=[]; Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var _vv=null; for(var _i=0;_i<p.v.length;_i++){ if(p.v[_i].n===ck.vn){ _vv=p.v[_i]; break; } } _items.push({product_id:p.dbid||null, name:p.n, variant:(p.v.length>1?ck.vn:(_vv?_vv.n:'')), qty:cart[k], price:vprice(p,ck.vn), grams:(p.c==='Flower'&&_vv&&_vv.g!=null)?_vv.g:null}); }); var _f=function(n){ var el=coform.querySelector('[name="'+n+'"]'); return el?String(el.value).trim():''; }; _sb.from('orders').insert({ ref:ord, items:_items, subtotal:sub, delivery_method:m, delivery_slot:(m==='delivery'?pickedSlot.replace('|',' \u00b7 '):null), delivery_fee:fee, total:grand, currency:'CAD', payment_method:pay, quote_rate:((pay==='bitcoin')?RATE.bitcoin:((pay==='monero')?RATE.monero:null)), quote_amount:((pay==='bitcoin'||pay==='monero')?fmtPayable(grand,pay):null), quote_at:((pay==='bitcoin'||pay==='monero')&&RATE_AT?new Date(RATE_AT).toISOString():null), customer:{name:_f('name'),email:_f('email'),phone:_f('phone'),address:_f('address'),city:_f('city'),province:_f('province'),postal:_f('postal')}, status:'new' }).then(function(){}, function(){}); }catch(e){} }
     var recap='<div class="corecap">';
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var vn=(p.v.length>1?ck.vn:''); recap+='<div class="cosumrow"><span>'+esc(p.n)+(vn?(' ('+esc(vn)+')'):'')+' &times;'+cart[k]+'</span><span>'+amt(vprice(p,ck.vn)*cart[k])+'</span></div>'; });
     recap+='<div class="cosumrow"><span>'+(m==='shipping'?'Shipping':'Delivery')+'</span><span>'+(fee?amt(fee):'Free')+'</span></div>';
@@ -1237,7 +1315,7 @@
         qrBlock='<div class="coqr" id="coqr" data-uri="'+esc(_uri)+'"><div class="coqr-t">Scan to pay</div><div id="coqrbox"></div><div class="coqr-h">Opens your '+cn+' wallet'+(haveAmt?' with the amount filled in':'')+'</div></div>';
       }
     }
-    var mtxt=m==='shipping'?DLV.shipName:DLV.localName;
+    var mtxt=(m==='shipping'?DLV.shipName:DLV.localName)+((m==='delivery'&&pickedSlot)?(' \u00b7 '+pickedSlot.split('|')[1]+' '+pickedSlot.split('|')[0]):'');
     coconfirm.innerHTML='<div class="cocheck">\u2713</div><h3>Order placed</h3><div class="coorder">'+ord+' \u00b7 '+mtxt+'</div>'+recap+'<div class="copay-note">'+note+'</div><div class="copaywrap">'+qrBlock+'<div class="cocopy">'+rows+'</div></div><button class="codone" id="codone" type="button">Done</button>';
     coform.style.display='none'; coconfirm.hidden=false;
     try{
@@ -1253,7 +1331,7 @@
     if(e.target.closest('#codone')){ closeCheckout(); setTimeout(function(){ coform.style.display=''; coconfirm.hidden=true; coform.reset(); syncOpts(); }, 320); }
   });
 
-  render(); updateCount(); try{ applyHeaderCfg(); applyDeliveryCfg(); }catch(e){}
+  render(); updateCount(); try{ applyHeaderCfg(); applyDeliveryCfg(); }catch(e){} _loadDelivery();
   function reflow(arr){ if(!Array.isArray(arr)) return; window.__WSLOADING=false; P.length=0; arr.forEach(function(x){ P.push(migrateP(x)); }); reindex(); buildTabs(); render(); updateCount(); }
   window.__WS={ get:function(){ return P; }, apply:reflow, icon:iconFor };
   /* ---- Supabase keys come from config.js (edit that file, not this one) ---- */
@@ -1262,6 +1340,12 @@
   function _rowToP(r){ return {dbid:r.id,img:r.image_url||'',c:r.category,n:r.name,t:r.type||'',v:r.variants||[],e:r.effects||'',f:r.flavours||'',d:r.description||'',grams:(r.stock_grams==null?null:Number(r.stock_grams)),_ca:r.created_at}; }
   function _fromDB(){ return _sb.from('products').select('*').order('sort',{ascending:true}).then(function(res){ if(res.error||!res.data) return null; return res.data.map(_rowToP); }); }
   function _fromJSON(){ try{ return fetch('products.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }); }catch(e){ return Promise.resolve(null); } }
+  function _loadDelivery(){
+    if(!_sb) return;
+    _sb.from('settings').select('value').eq('key','delivery').maybeSingle().then(function(res){
+      if(res&&res.data&&res.data.value){ var v=res.data.value; Object.keys(v).forEach(function(k){ DLV[k]=v[k]; }); FREE_AT=DLV.freeAt; try{ applyHeaderCfg(); applyDeliveryCfg(); }catch(e){} }
+    }).catch(function(){});
+  }
   function _loadMenu(){ window.__WSLOADING=true; setTimeout(function(){ window.__WSLOADING=false; },8000); if(_sb){ _fromDB().then(function(arr){ if(arr){ reflow(arr); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }); } }).catch(function(){ _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); }); } else { _fromJSON().then(function(d){ if(d&&Array.isArray(d)) reflow(d); }).catch(function(){}); } }
   _loadMenu();
 })();
@@ -1336,15 +1420,16 @@
     }
     function dash(){
       host.innerHTML='<div class="ed-bar"><span class="ed-title">WeedNOW admin</span>'+
-        '<button class="ed-btn" id="ed_tabP">Products</button><button class="ed-btn" id="ed_tabO">Orders</button>'+
+        '<button class="ed-btn" id="ed_tabP">Products</button><button class="ed-btn" id="ed_tabO">Orders</button><button class="ed-btn" id="ed_tabD">Delivery</button>'+
         '<button class="ed-btn" id="ed_out">Log out</button><button class="ed-btn" id="ed_close">Close</button></div><div id="ed_body"></div>';
       document.getElementById('ed_close').addEventListener('click', close);
       document.getElementById('ed_out').addEventListener('click', function(){ SB().auth.signOut().then(function(){ lognin(); }); });
       document.getElementById('ed_tabP').addEventListener('click', function(){ view='products'; renderView(); });
       document.getElementById('ed_tabO').addEventListener('click', function(){ view='orders'; renderView(); });
+      document.getElementById('ed_tabD').addEventListener('click', function(){ view='delivery'; renderView(); });
       renderView();
     }
-    function renderView(){ if(view==='orders') ordersView(); else productsView(); }
+    function renderView(){ if(view==='orders') ordersView(); else if(view==='delivery') deliveryView(); else productsView(); }
     function extFor(t){ if(/png/i.test(t)) return 'png'; if(/webp/i.test(t)) return 'webp'; if(/gif/i.test(t)) return 'gif'; return 'jpg'; }
     function uploadImg(file, cb){
       var sb=SB(); if(!sb){ cb(null,'No database connection'); return; }
@@ -1457,6 +1542,89 @@
       if(!r) return '<div class="eo-quote warn">No rate stored for this order &mdash; check the live price to confirm the amount.</div>';
       var amt=(pm==='bitcoin')?((o.total/r).toFixed(6)+' BTC'):((o.total/r).toFixed(4)+' XMR');
       return '<div class="eo-quote warn">No rate stored &middot; at today\u2019s price that is about '+esc(amt)+'</div>';
+    }
+    var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var DCFG=null;
+    function defaultDelivery(){ return {localOn:true,shipOn:true,localFee:12,shipFee:15,freeAt:150,leadMinutes:45,
+      localName:'Same-day local delivery',shipName:'Canada-wide shipping',shipDesc:'2-5 business days \u00b7 discreet',
+      cities:['Langley','Surrey','Abbotsford','Delta','Maple Ridge'],schedule:{}}; }
+    function deliveryView(){
+      var body=document.getElementById('ed_body');
+      body.innerHTML='<div class="ed-panel"><h3 class="ed-h">Delivery</h3><div id="ed_dwrap">Loading\u2026</div></div>';
+      SB().from('settings').select('value').eq('key','delivery').maybeSingle().then(function(res){
+        DCFG=(res&&res.data&&res.data.value)||defaultDelivery();
+        if(!DCFG.schedule) DCFG.schedule={};
+        drawDelivery();
+      }).catch(function(){ DCFG=defaultDelivery(); drawDelivery(); });
+    }
+    function drawDelivery(){
+      var w=document.getElementById('ed_dwrap'); if(!w) return;
+      var sched=DCFG.schedule||{};
+      w.innerHTML=
+        '<div class="ed-field"><label>Same-day local delivery</label>'+
+          '<button class="ed-btn'+(DCFG.localOn?' pri':'')+'" id="dv_localon" type="button">'+(DCFG.localOn?'ON \u2014 accepting same-day':'OFF \u2014 shipping only')+'</button></div>'+
+        '<div class="ed-field"><label>Canada-wide shipping</label>'+
+          '<button class="ed-btn'+(DCFG.shipOn?' pri':'')+'" id="dv_shipon" type="button">'+(DCFG.shipOn?'ON':'OFF')+'</button></div>'+
+        '<div class="ed-row2"><div class="ed-field"><label>Local fee ($)</label><input id="dv_lf" type="number" value="'+(DCFG.localFee)+'"/></div>'+
+          '<div class="ed-field"><label>Shipping fee ($)</label><input id="dv_sf" type="number" value="'+(DCFG.shipFee)+'"/></div></div>'+
+        '<div class="ed-row2"><div class="ed-field"><label>Free over ($)</label><input id="dv_fa" type="number" value="'+(DCFG.freeAt)+'"/></div>'+
+          '<div class="ed-field"><label>Lead time (min)</label><input id="dv_lead" type="number" value="'+(DCFG.leadMinutes)+'"/></div></div>'+
+        '<div class="ed-field"><label>Service area \u2014 cities (one per line)</label><textarea id="dv_cities" style="min-height:96px">'+esc((DCFG.cities||[]).join('\n'))+'</textarea>'+
+          '<div class="ed-imgnote">Neighbourhoods like Cloverdale or Walnut Grove match their city automatically.</div></div>'+
+        '<h3 class="ed-h" style="margin-top:22px">Weekly schedule</h3>'+
+        '<div class="ed-imgnote" style="margin-bottom:10px">Windows offered each day. Blank day = no same-day delivery that day.</div>'+
+        DAYS.map(function(dn,di){
+          var list=sched[String(di)]||[];
+          return '<div class="dv-day"><div class="dv-dh"><b>'+dn+'</b>'+
+            '<span><button class="ed-btn dv-mini" type="button" data-add="'+di+'">+ Window</button>'+
+            '<button class="ed-btn dv-mini" type="button" data-copy="'+di+'">Copy to all</button></span></div>'+
+            '<div class="dv-slots" data-day="'+di+'">'+ list.map(function(sl,si){
+              return '<div class="dv-slot"><input class="dv-lb" value="'+esc(sl.label||'')+'" placeholder="4pm - 6pm"/>'+
+                '<input class="dv-st" type="number" min="0" max="23" value="'+(sl.start!=null?sl.start:'')+'" placeholder="hr"/>'+
+                '<button class="ed-x" type="button" data-del="'+di+':'+si+'">\u00d7</button></div>';
+            }).join('') + (list.length?'':'<div class="dv-none">No same-day delivery</div>') + '</div></div>';
+        }).join('')+
+        '<div class="ed-err" id="dv_err"></div>'+
+        '<button class="ed-btn pri" id="dv_save" style="width:100%; margin-top:14px">Save delivery settings</button>';
+
+      document.getElementById('dv_localon').addEventListener('click', function(){ DCFG.localOn=!DCFG.localOn; readDelivery(); drawDelivery(); });
+      document.getElementById('dv_shipon').addEventListener('click', function(){ DCFG.shipOn=!DCFG.shipOn; readDelivery(); drawDelivery(); });
+      document.getElementById('dv_save').addEventListener('click', saveDelivery);
+      w.addEventListener('click', function(e){
+        var b=e.target.closest('button'); if(!b) return;
+        if(b.hasAttribute('data-add')){ var d=b.getAttribute('data-add'); readDelivery(); (DCFG.schedule[d]=DCFG.schedule[d]||[]).push({label:'',start:''}); drawDelivery(); }
+        else if(b.hasAttribute('data-del')){ var p=b.getAttribute('data-del').split(':'); readDelivery(); DCFG.schedule[p[0]].splice(+p[1],1); drawDelivery(); }
+        else if(b.hasAttribute('data-copy')){ var src=b.getAttribute('data-copy'); readDelivery();
+          var from=JSON.stringify(DCFG.schedule[src]||[]);
+          for(var i=0;i<7;i++) DCFG.schedule[String(i)]=JSON.parse(from);
+          drawDelivery(); }
+      });
+    }
+    function readDelivery(){
+      if(!DCFG) return;
+      var g=function(id){ var el=document.getElementById(id); return el?el.value:''; };
+      if(document.getElementById('dv_lf')){
+        DCFG.localFee=Number(g('dv_lf'))||0; DCFG.shipFee=Number(g('dv_sf'))||0;
+        DCFG.freeAt=Number(g('dv_fa'))||0; DCFG.leadMinutes=Number(g('dv_lead'))||0;
+        DCFG.cities=g('dv_cities').split('\n').map(function(x){return x.trim();}).filter(Boolean);
+      }
+      var sch={};
+      Array.prototype.forEach.call(document.querySelectorAll('.dv-slots'), function(box){
+        var d=box.getAttribute('data-day'), arr=[];
+        Array.prototype.forEach.call(box.querySelectorAll('.dv-slot'), function(r){
+          var lb=r.querySelector('.dv-lb').value.trim(), st=r.querySelector('.dv-st').value.trim();
+          if(lb||st!=='') arr.push({label:lb, start:(st===''?0:Number(st))});
+        });
+        sch[d]=arr;
+      });
+      if(Object.keys(sch).length) DCFG.schedule=sch;
+    }
+    function saveDelivery(){
+      readDelivery();
+      var err=document.getElementById('dv_err'); err.textContent='Saving\u2026';
+      SB().from('settings').upsert({key:'delivery', value:DCFG, updated_at:new Date().toISOString()}, {onConflict:'key'})
+        .then(function(res){ if(res&&res.error){ err.textContent=res.error.message; } else { err.textContent='Saved \u2014 live on the site now.'; setTimeout(function(){ if(err) err.textContent=''; },2500); } })
+        .catch(function(){ err.textContent='Save failed'; });
     }
     function ordersView(){ document.getElementById('ed_body').innerHTML='<div class="ed-panel"><h3 class="ed-h">Orders</h3><div id="ed_orders">Loading\u2026</div></div>';
       var box=document.getElementById('ed_orders');
