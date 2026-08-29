@@ -291,6 +291,7 @@
   .copaywarn{border:1px solid #e9c94a; color:#e9c94a; font-family:var(--mono); font-size:11px; line-height:1.7; letter-spacing:.04em; padding:12px 14px; margin-bottom:12px}
   .cozone{border:1px solid var(--line); color:var(--dim); font-family:var(--mono); font-size:11px; line-height:1.7; letter-spacing:.04em; padding:11px 13px; margin-bottom:12px}
   .coslots{margin:14px 0 4px}
+  .coslots.err{outline:1px solid var(--red); outline-offset:6px}
   .coslots-t{font-family:var(--mono); font-size:9px; letter-spacing:.24em; text-transform:uppercase; color:var(--dim); margin-bottom:9px}
   .coslots-g{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:8px}
   .coslot{font-family:var(--mono); font-size:12px; letter-spacing:.03em; color:var(--bone); background:#0d100c; border:1px solid var(--line); padding:11px 8px; cursor:pointer; text-align:center; transition:border-color .2s, color .2s}
@@ -1053,7 +1054,11 @@
     localName:'Same-day local delivery', shipName:'Canada-wide shipping',
     shipDesc:'2-5 business days \u00b7 discreet',
     cities:['Langley','Surrey','Abbotsford','Delta','Maple Ridge'],
-    schedule:{}
+    schedule:(function(){
+      var wk=[{label:'12pm - 2pm',start:12},{label:'2pm - 4pm',start:14},{label:'4pm - 6pm',start:16},{label:'6pm - 8pm',start:18}];
+      var we=wk.concat([{label:'8pm - 10pm',start:20}]);
+      return {'0':wk.slice(1),'1':wk,'2':wk,'3':wk,'4':wk,'5':we,'6':we};
+    })()
   };
   var NEIGH={
     'cloverdale':'surrey','fleetwood':'surrey','newton':'surrey','guildford':'surrey','whalley':'surrey','south surrey':'surrey','port kells':'surrey',
@@ -1091,6 +1096,7 @@
   }
   var pickedSlot='';
   function cityField(){ var el=coform.querySelector('[name="city"]'); return el?el.value:''; }
+  function slotRequired(){ return selMethod()==='delivery' && slotsForToday().length>0; }
   function renderSlots(){
     var box=document.getElementById('coslots'), g=document.getElementById('coslotsg'); if(!box||!g) return;
     var m=selMethod();
@@ -1220,6 +1226,7 @@
     }
     return '$'+cad;
   }
+  function slotText(){ return pickedSlot?(pickedSlot.split('|')[1]+' '+pickedSlot.split('|')[0]):''; }
   function recalcSummary(){
     var sub=orderSub(), m=selMethod(), pay=selPay(), fee=feeFor(m), grand=sub+fee, rows='';
     function amt(v){ return fmtPayable(v, pay); }
@@ -1240,12 +1247,15 @@
   }
   function syncOpts(){ Array.prototype.forEach.call(coform.querySelectorAll('.coopt'), function(o){ var i=o.querySelector('input'); o.classList.toggle('sel', !!(i&&i.checked)); }); }
   function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; applyDeliveryCfg(); syncZone(); syncPayMethods(); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
-  function closeCheckout(){ coview.classList.remove('open'); }
+  function closeCheckout(){ pickedSlot=''; coview.classList.remove('open'); }
   coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); if(e.target.name==='method') renderSlots(); if(e.target.name==='city') syncZone(); syncOpts(); });
   coform.addEventListener('input', function(e){ if(e.target.name==='city') syncZone(); });
   document.addEventListener('click', function(e){ var b=e.target&&e.target.closest?e.target.closest('.coslot'):null; if(!b) return;
     pickedSlot=b.getAttribute('data-slot');
     var g=document.getElementById('coslotsg'); if(g) Array.prototype.forEach.call(g.children,function(x){ x.classList.toggle('on', x===b); });
+    var sw=document.getElementById('coslots'); if(sw) sw.classList.remove('err');
+    var ce=document.getElementById('coerr'); if(ce && ce.textContent.indexOf('delivery window')>=0) ce.textContent='';
+    try{ recalcSummary(); }catch(_){}
   });
   document.getElementById('coback').addEventListener('click', function(){ closeCheckout(); openCart(); });
   function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
@@ -1272,6 +1282,11 @@
     });
     var err=document.getElementById('coerr');
     if(firstBad){ err.textContent='Please complete the highlighted fields correctly and confirm you are 19+.'; try{ firstBad.focus(); }catch(_){} return; }
+    if(slotRequired() && !pickedSlot){
+      err.textContent='Please choose a delivery window.';
+      var sb2=document.getElementById('coslots'); if(sb2){ sb2.classList.add('err'); try{ sb2.scrollIntoView({behavior:'smooth', block:'center'}); }catch(_){} }
+      return;
+    }
     err.textContent=''; placeOrder();
   });
   function placeOrder(){
