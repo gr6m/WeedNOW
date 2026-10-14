@@ -281,11 +281,20 @@
   .qclose{position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center;
     color:var(--bone); background:rgba(4,7,3,.55); border:1px solid var(--line)}
   .qclose:hover{border-color:var(--paint); color:var(--paint)}
-  .qvis{--lf:#5fe07e; position:relative; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; overflow:hidden; border-bottom:1px solid var(--line);
+  .qvis{--lf:#5fe07e; position:relative; aspect-ratio:16/9; max-height:34svh; display:flex; align-items:center; justify-content:center; overflow:hidden; border-bottom:1px solid var(--line);
     background:radial-gradient(120% 130% at 50% 22%, rgba(95,224,126,.1), rgba(4,7,3,.55) 66%)}
   .qvis::after{content:""; position:absolute; inset:0; opacity:.45; background-image:radial-gradient(rgba(233,231,219,.5) .6px, transparent 1.2px); background-size:5px 5px}
+  .qvis.noimg{aspect-ratio:auto; height:104px}
+  .qvis.noimg .qleaf{width:auto; height:58%}
   .qvis .qleaf{width:30%; height:auto; color:var(--lf); opacity:.92; filter:url(#rough) drop-shadow(0 0 16px rgba(95,224,126,.45))}
   .qinfo{padding:18px 20px 20px}
+  @media(max-width:560px){
+    .qinfo{padding:14px 16px 16px}
+    .qbuy{margin:0 -16px -16px; padding-left:16px; padding-right:16px}
+    .qd{font-size:12px; line-height:1.55; margin:0 0 12px}
+    .qp{font-size:24px}
+    .qadd{padding:12px 16px; font-size:14px}
+  }
   .qn{margin:0 0 4px; font-family:var(--cond); font-size:27px; text-transform:uppercase; color:var(--bone); line-height:1}
   .qmeta{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); margin-bottom:13px}
   .qvars{display:flex; flex-wrap:wrap; gap:7px; margin:0 0 15px}
@@ -323,7 +332,11 @@
   .tico{width:12px; height:12px; flex:0 0 auto; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
   .qchips.eff span{color:var(--paint); border-color:rgba(95,224,126,.4)}
   .qchips.flav span{color:var(--bone); border-color:rgba(233,231,219,.3)}
-  .qbuy{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:16px}
+  .qbuy{position:sticky; bottom:0; z-index:6; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:nowrap;
+    border-top:1px solid var(--line); background:#0c0f0b; margin:0 -20px -20px; padding:12px 20px calc(14px + env(safe-area-inset-bottom));
+    box-shadow:0 -14px 24px rgba(12,15,11,.9)}
+  .qbuy .qactions{display:flex; align-items:center; gap:10px; flex:0 0 auto}
+  .qbuy .qp{flex:0 0 auto; white-space:nowrap}
   .qactions{display:flex; align-items:center; gap:12px}
   .qqty{display:inline-flex; align-items:center; border:1px solid var(--line)}
   .qqty .qstep{width:34px; height:38px; display:inline-flex; align-items:center; justify-content:center; color:var(--bone); background:transparent; border:none; font-family:var(--mono); font-size:16px; line-height:1; cursor:pointer; transition:color .15s}
@@ -1042,7 +1055,8 @@
   var CART={'Vapes':'#wvape','Edibles':'#wedible','Pre-Rolls':'#wpreroll','Concentrates':'#wconc'};
   function artFor(p){ return CART[p&&p.c]||'#wleaf'; }
   function vimg(p, vn){ if(!p) return ''; if(vn){ var vs=p.v||[]; for(var i=0;i<vs.length;i++){ if(vs[i].n===vn && vs[i].img) return vs[i].img; } } return p.img||''; }
-  function setQImg(p, vn){ var im=document.getElementById('qimg'), lf=document.querySelector('#quick .qleaf'); if(!im) return; var u=vimg(p,vn); if(u){ im.onerror=function(){ im.hidden=true; if(lf) lf.style.visibility=''; }; im.onload=function(){ if(lf) lf.style.visibility='hidden'; }; im.src=u; im.alt=p.n||''; im.hidden=false; } else { im.hidden=true; im.removeAttribute('src'); if(lf) lf.style.visibility=''; } }
+  function setQImg(p, vn){ var im=document.getElementById('qimg'), lf=document.querySelector('#quick .qleaf'); if(!im) return; var u=vimg(p,vn); var box=document.getElementById('qvis');
+    if(u){ im.onerror=function(){ im.hidden=true; if(lf) lf.style.visibility=''; if(box) box.classList.add('noimg'); }; im.onload=function(){ if(lf) lf.style.visibility='hidden'; if(box) box.classList.remove('noimg'); }; im.src=u; im.alt=p.n||''; im.hidden=false; if(box) box.classList.remove('noimg'); } else { im.hidden=true; im.removeAttribute('src'); if(lf) lf.style.visibility=''; if(box) box.classList.add('noimg'); } }
   function typeBadges(p){ return typesOf(p.t).map(function(t){ return '<span class="ctype">'+esc(t)+'</span>'; }).join(''); }
   var MENU_ONLY=false; /* set true for menu-only */
   try{ if(MENU_ONLY) document.body.classList.add('menu-only'); }catch(e){}
