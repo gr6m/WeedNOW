@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gr6m.github.io/WeedNOW/sitemap.xml
+Sitemap: https://theweedshop.net/sitemap.xml
