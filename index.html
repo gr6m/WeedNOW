@@ -3,11 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<title>WeedNOW — Cannabis Delivery in BC &amp; Canada-Wide Shipping</title>
+<title>The Weed Shop — Cannabis Delivery in BC &amp; Canada-Wide Shipping</title>
 <meta name="build" content="b0830-0054"/>
 <meta name="description" content="Same-day cannabis delivery in Langley, Surrey, Abbotsford, Delta and Maple Ridge, plus discreet Canada-wide shipping. Flower, pre-rolls, vapes, edibles and concentrates. 19+."/>
 <meta name="color-scheme" content="dark"/>
 <meta name="theme-color" content="#0a0c09"/>
+<meta name="theme-color" content="#0a0c09" media="(prefers-color-scheme: light)"/>
+<meta name="theme-color" content="#0a0c09" media="(prefers-color-scheme: dark)"/>
 <meta name="robots" content="index,follow"/>
 <link rel="canonical" href="https://theweedshop.net/"/>
 
@@ -15,8 +17,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 
 <meta property="og:type" content="website"/>
-<meta property="og:site_name" content="WeedNOW"/>
-<meta property="og:title" content="WeedNOW — Cannabis Delivery in BC"/>
+<meta property="og:site_name" content="The Weed Shop"/>
+<meta property="og:title" content="The Weed Shop — Cannabis Delivery in BC"/>
 <meta property="og:description" content="Same-day local delivery and discreet Canada-wide shipping. Flower, pre-rolls, vapes, edibles and concentrates. 19+."/>
 <meta property="og:url" content="https://theweedshop.net/"/>
 <meta property="og:image" content="https://theweedshop.net/og-image.png"/>
@@ -25,7 +27,7 @@
 <meta property="og:locale" content="en_CA"/>
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="WeedNOW — Cannabis Delivery in BC"/>
+<meta name="twitter:title" content="The Weed Shop — Cannabis Delivery in BC"/>
 <meta name="twitter:description" content="Same-day local delivery and discreet Canada-wide shipping. 19+."/>
 <meta name="twitter:image" content="https://theweedshop.net/og-image.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -38,8 +40,8 @@
     --black-let:"Pirata One","Grenze Gotisch",serif; --cond:"Anton",system-ui,sans-serif; --mono:"Space Mono",ui-monospace,monospace;
   }
   *{box-sizing:border-box}
-  html,body{margin:0; overflow-x:hidden; max-width:100%}
-  html{-webkit-text-size-adjust:100%}
+  html,body{margin:0; overflow-x:hidden; max-width:100%; background-color:#0a0c09}
+  html{-webkit-text-size-adjust:100%; background-color:#0a0c09}
   body{background:var(--bg); color:var(--bone); font-family:var(--mono); min-height:100svh; overflow-x:hidden; touch-action:manipulation; -webkit-tap-highlight-color:transparent; overscroll-behavior-y:none}
   ::selection{background:var(--paint); color:#04160c}
   a{color:inherit; text-decoration:none}
@@ -81,7 +83,7 @@
     background:rgba(8,11,7,.78); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
   .hinner{display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:1280px; margin:0 auto; padding:14px clamp(20px,4.5vw,32px)}
   .brand{display:inline-flex; align-items:center; gap:9px; white-space:nowrap; cursor:pointer}
-  .brand .bw{font-family:var(--black-let); font-size:clamp(24px,6vw,34px); line-height:.8; color:var(--paint); text-shadow:0 0 22px rgba(95,224,126,.35)}
+  .brand .bw{font-family:var(--black-let); font-size:clamp(17px,4.4vw,26px); line-height:.9; color:var(--paint); text-shadow:0 0 22px rgba(95,224,126,.35); white-space:nowrap}
   .brand .st{font-size:.55em; vertical-align:.7em; margin-left:.04em}
   .hstatus{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim)}
   .hstatus i{width:6px; height:6px; border-radius:50%; background:var(--paint); box-shadow:0 0 8px var(--paint); animation:hblink 2.6s steps(1) infinite}
@@ -518,9 +520,10 @@
   #hero .tags b{color:var(--bone); font-weight:700}
   #hero .stage{position:relative; z-index:6; display:flex; flex-direction:column; align-items:center; gap:clamp(20px,3.4vh,34px)}
   #hero .markwrap{position:relative; line-height:.82; filter:drop-shadow(0 7px 12px rgba(0,0,0,.55)); animation:sprayin_h 1s cubic-bezier(.2,.8,.2,1) both}
-  #hero .mark{margin:0; font-family:var(--black-let); font-weight:400; letter-spacing:.005em; text-transform:none; font-size:clamp(74px,18vw,260px); filter:url(#rough)}
+  #hero .mark{margin:0; font-family:var(--black-let); font-weight:400; letter-spacing:.005em; text-transform:none; font-size:clamp(62px,14vw,206px); filter:url(#rough)}
   #hero .mark span{display:block}
   #hero .mark .l2{margin-top:0}
+  #hero .mark .l0{font-size:.34em; letter-spacing:.14em; margin-bottom:.06em; opacity:.9}
   #hero .m0{color:var(--paint); text-shadow:0 0 32px rgba(95,224,126,.4); position:relative; z-index:2; animation:flick_h 5s steps(1) infinite}
   #hero .m1,#hero .m2{position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0; mix-blend-mode:screen}
   #hero .m1{color:#35ffc2; animation:g1_h 4.6s steps(1) infinite}
@@ -726,7 +729,7 @@
 {
   "@context":"https://schema.org",
   "@type":"Store",
-  "name":"WeedNOW",
+  "name":"The Weed Shop",
   "description":"Cannabis delivery in British Columbia with Canada-wide shipping.",
   "url":"https://theweedshop.net/",
   "image":"https://theweedshop.net/og-image.png",
@@ -782,7 +785,7 @@
     <div class="ggrain" aria-hidden="true"></div>
     <div class="gatebox">
       <div class="g19">19+</div>
-      <h2>WeedNOW</h2>
+      <h2>The Weed Shop</h2>
       <p>You must be 19 or older to enter.<br/>Canada only.</p>
       <div class="gbtns">
         <button class="gyes" id="gyes" type="button">Yes &mdash; I'm 19 or older</button>
@@ -810,9 +813,9 @@
 
     <div class="stage">
       <div class="markwrap">
-        <p class="mark m0" aria-label="WeedNOW"><span>Weed</span><span class="l2">NOW</span></p>
-        <p class="mark m1" aria-hidden="true"><span>Weed</span><span class="l2">NOW</span></p>
-        <p class="mark m2" aria-hidden="true"><span>Weed</span><span class="l2">NOW</span></p>
+        <p class="mark m0" aria-label="The Weed Shop"><span class="l0">The</span><span>Weed</span><span class="l2">Shop</span></p>
+        <p class="mark m1" aria-hidden="true"><span class="l0">The</span><span>Weed</span><span class="l2">Shop</span></p>
+        <p class="mark m2" aria-hidden="true"><span class="l0">The</span><span>Weed</span><span class="l2">Shop</span></p>
       </div>
 
       <p class="sub"><span>Premium cannabis</span><i class="dot"></i><b>Delivered Canada-wide</b></p>
@@ -837,8 +840,8 @@
 
   <header>
     <div class="hinner">
-    <a class="brand" role="button" tabindex="0" aria-label="WeedNOW home">
-      <span class="bw">Weed<span class="st">NOW</span></span>
+    <a class="brand" role="button" tabindex="0" aria-label="The Weed Shop home">
+      <span class="bw">The Weed Shop</span>
     </a>
     <span class="hstatus" id="hstatus"><i></i>Same-day local &middot; Canada-wide</span>
     <div class="hr">
@@ -1571,7 +1574,7 @@
     var sub=orderSub(), fee=feeFor(m), grand=sub+fee;
     function amt(v){ return fmtPayable(v, pay); }
     var email=(coform.querySelector('[name="email"]')||{}).value||'';
-    var ord='WN-'+Math.floor(100000+Math.random()*900000);
+    var ord='TWS-'+Math.floor(100000+Math.random()*900000);
     if(_sb){ try{ var _items=[]; Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var _vv=null; for(var _i=0;_i<p.v.length;_i++){ if(p.v[_i].n===ck.vn){ _vv=p.v[_i]; break; } } _items.push({product_id:p.dbid||null, name:p.n, variant:(p.v.length>1?ck.vn:(_vv?_vv.n:'')), qty:cart[k], price:vprice(p,ck.vn), grams:(p.c==='Flower'&&_vv&&_vv.g!=null)?_vv.g:null}); }); var _f=function(n){ var el=coform.querySelector('[name="'+n+'"]'); return el?String(el.value).trim():''; }; _sb.from('orders').insert({ ref:ord, items:_items, subtotal:sub, delivery_method:m, delivery_slot:(m==='delivery'?pickedSlot.replace('|',' \u00b7 '):null), delivery_fee:fee, total:grand, currency:'CAD', payment_method:pay, quote_rate:((pay==='bitcoin')?RATE.bitcoin:((pay==='monero')?RATE.monero:null)), quote_amount:((pay==='bitcoin'||pay==='monero')?fmtPayable(grand,pay):null), quote_at:((pay==='bitcoin'||pay==='monero')&&RATE_AT?new Date(RATE_AT).toISOString():null), customer:{name:_f('name'),email:_f('email'),phone:_f('phone'),address:_f('address'),city:_f('city'),province:_f('province'),postal:_f('postal')}, status:'new' }).then(function(){}, function(){}); }catch(e){} }
     var recap='<div class="corecap">';
     Object.keys(cart).forEach(function(k){ var ck=ckey(k), p=pById(ck.id); if(!p) return; var vn=(p.v.length>1?ck.vn:''); recap+='<div class="cosumrow"><span>'+esc(p.n)+(vn?(' ('+esc(vn)+')'):'')+' &times;'+cart[k]+'</span><span>'+amt(vprice(p,ck.vn)*cart[k])+'</span></div>'; });
@@ -1675,7 +1678,7 @@
     if(fp && !rm && gs){ gate.addEventListener('pointermove', function(e){ if(e.pointerType==='touch') return; gs.style.opacity='1'; gs.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)'; }); }
     var y=document.getElementById('gyes'), no=document.getElementById('gno');
     if(y) y.addEventListener('click', function(){ try{ localStorage.setItem('ws_age_ok','1'); }catch(e){} gate.classList.add('hide'); setTimeout(function(){ if(gate.parentNode) gate.parentNode.removeChild(gate); }, 640); });
-    if(no) no.addEventListener('click', function(){ var b=gate.querySelector('.gatebox'); if(b) b.innerHTML='<div class="g19">19+</div><h2>Hold up</h2><p>You must be 19 or older to enter WeedNOW.<br/>Come back when you are of legal age.</p>'; });
+    if(no) no.addEventListener('click', function(){ var b=gate.querySelector('.gatebox'); if(b) b.innerHTML='<div class="g19">19+</div><h2>Hold up</h2><p>You must be 19 or older to enter The Weed Shop.<br/>Come back when you are of legal age.</p>'; });
   })();
   if(!rm){ var mw=document.querySelector('#hero .markwrap'); if(mw){ mw.addEventListener('pointerdown', function(){ mw.classList.remove('zap'); void mw.offsetWidth; mw.classList.add('zap'); setTimeout(function(){ mw.classList.remove('zap'); }, 560); }); } }
 })();
@@ -1716,7 +1719,7 @@
       document.getElementById('ed_email').focus();
     }
     function dash(){
-      host.innerHTML='<div class="ed-bar"><span class="ed-title">WeedNOW admin</span>'+
+      host.innerHTML='<div class="ed-bar"><span class="ed-title">The Weed Shop admin</span>'+
         '<button class="ed-btn" id="ed_tabP">Products</button><button class="ed-btn" id="ed_tabO">Orders</button><button class="ed-btn" id="ed_tabD">Delivery</button>'+
         '<button class="ed-btn" id="ed_out">Log out</button><button class="ed-btn" id="ed_close">Close</button></div><div id="ed_body"></div>';
       document.getElementById('ed_close').addEventListener('click', close);
