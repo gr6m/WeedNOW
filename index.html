@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>The Weed Shop — Cannabis Delivery in BC &amp; Canada-Wide Shipping</title>
+<title>The Weed Shop — Cannabis Delivery &amp; Shipping Across Canada</title>
 <meta name="build" content="b0830-0054"/>
 <meta name="description" content="Same-day cannabis delivery in Langley, Surrey, Abbotsford, Delta and Maple Ridge, plus discreet Canada-wide shipping. Flower, pre-rolls, vapes, edibles and concentrates. 19+."/>
 <meta name="color-scheme" content="dark"/>
@@ -18,7 +18,7 @@
 
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="The Weed Shop"/>
-<meta property="og:title" content="The Weed Shop — Cannabis Delivery in BC"/>
+<meta property="og:title" content="The Weed Shop — Cannabis Delivered Across Canada"/>
 <meta property="og:description" content="Same-day local delivery and discreet Canada-wide shipping. Flower, pre-rolls, vapes, edibles and concentrates. 19+."/>
 <meta property="og:url" content="https://theweedshop.net/"/>
 <meta property="og:image" content="https://theweedshop.net/og-image.png"/>
@@ -27,7 +27,7 @@
 <meta property="og:locale" content="en_CA"/>
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="The Weed Shop — Cannabis Delivery in BC"/>
+<meta name="twitter:title" content="The Weed Shop — Cannabis Delivered Across Canada"/>
 <meta name="twitter:description" content="Same-day local delivery and discreet Canada-wide shipping. 19+."/>
 <meta name="twitter:image" content="https://theweedshop.net/og-image.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -176,8 +176,19 @@
   @media(min-width:1024px){ .grid{grid-template-columns:repeat(auto-fill,minmax(216px,1fr)); gap:22px}
     .cn{font-size:18px} .cmeta{font-size:10.5px} .cp{font-size:17px} .cbody{padding:14px} }
   .card{position:relative; display:flex; flex-direction:column; cursor:pointer; -webkit-tap-highlight-color:transparent; border:1px solid var(--line); background:var(--panel);
-    overflow:hidden; transition:transform .18s ease-out, border-color .3s, box-shadow .3s; animation:pop .5s both}
+    overflow:hidden; transition:transform .18s ease-out, border-color .3s, box-shadow .3s}
   .card:active{transform:scale(.985)}
+  /* staggered entrance: 'backwards' fill so hover/press transforms still work afterwards */
+  .grid:not(.in) .card{opacity:0}
+  .grid{--d:0ms}
+  .grid.in .card{animation:cardin .75s cubic-bezier(.16,.9,.25,1) backwards, cardflash 1.1s ease-out backwards;
+    animation-delay:calc(var(--d) + var(--i,0) * 75ms)}
+  .grid.in .card .cleaf, .grid.in .card .cimg{animation:cardart .75s cubic-bezier(.2,.9,.3,1.25) backwards; animation-delay:calc(var(--d) + var(--i,0) * 75ms + 160ms)}
+  .grid.in .card .cfoot{animation:cardfoot .55s ease backwards; animation-delay:calc(var(--d) + var(--i,0) * 75ms + 260ms)}
+  @keyframes cardin{from{opacity:0; transform:translateY(48px) scale(.88)}}
+  @keyframes cardflash{0%{border-color:var(--paint); box-shadow:0 0 0 1px var(--paint), 0 0 28px rgba(95,224,126,.45)}}
+  @keyframes cardart{from{opacity:0; transform:scale(.6) rotate(-8deg)}}
+  @keyframes cardfoot{from{opacity:0; transform:translateY(10px)}}
   .card:hover{transform:translateY(-5px); border-color:rgba(95,224,126,.5); box-shadow:0 18px 44px rgba(0,0,0,.55), 0 0 34px rgba(95,224,126,.12)}
   .cimg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block; z-index:1}
   .qimg{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; display:block; z-index:1}
@@ -274,7 +285,7 @@
 
   .qscrim{position:fixed; inset:0; z-index:72; background:rgba(0,0,0,.66); backdrop-filter:blur(2px); opacity:0; visibility:hidden; transition:opacity .3s, visibility .3s}
   .qscrim.open{opacity:1; visibility:visible}
-  .quick{position:fixed; left:50%; top:50%; z-index:73; width:min(500px,94vw); max-height:92svh; overflow-y:auto; overscroll-behavior:contain;
+  .quick{position:fixed; left:50%; top:50%; z-index:73; width:min(500px,94vw); max-height:92svh; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y;
     background:#0c0f0b; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.7);
     transform:translate(-50%,-46%) scale(.96); opacity:0; visibility:hidden; transition:opacity .3s, transform .32s cubic-bezier(.2,.8,.2,1), visibility .3s}
   .quick.open{opacity:1; visibility:visible; transform:translate(-50%,-50%) scale(1)}
@@ -531,6 +542,7 @@
   #hero.leaving{opacity:0; transform:scale(1.03); pointer-events:none}
   #hero.gone{display:none}
   html.hero-lock{overflow:hidden; overscroll-behavior:none}
+  body.scroll-lock{position:fixed; left:0; right:0; width:100%; overflow:hidden; overscroll-behavior:none}
   body.hero-open{overflow:hidden; position:fixed; top:0; left:0; right:0; bottom:0; width:100%; overscroll-behavior:none}
   #hero .wall{position:relative; min-height:100svh; width:100%; overflow:hidden; isolation:isolate;
     display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:clamp(20px,5vw,40px);
@@ -549,12 +561,15 @@
   #hero .tags .live i{width:6px; height:6px; border-radius:50%; background:var(--paint); box-shadow:0 0 10px var(--paint); animation:blink_h 2.4s steps(1) infinite}
   #hero .tags b{color:var(--bone); font-weight:700}
   #hero .stage{position:relative; z-index:6; display:flex; flex-direction:column; align-items:center; gap:clamp(20px,3.4vh,34px)}
-  #hero .markwrap{position:relative; line-height:.82; filter:drop-shadow(0 7px 12px rgba(0,0,0,.55)); animation:sprayin_h 1s cubic-bezier(.2,.8,.2,1) both}
+  #hero .markwrap{position:relative; line-height:.82}
+  #hero .markwrap::before{content:""; position:absolute; left:50%; top:50%; width:170%; height:150%; transform:translate(-50%,-50%); z-index:0; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(95,224,126,.22), rgba(95,224,126,.08) 55%, rgba(95,224,126,0)); opacity:0}
+  #hero.go .markwrap::before{animation:hfade 1.2s ease .3s forwards}
   #hero .mark{margin:0; font-family:var(--black-let); font-weight:400; letter-spacing:.005em; text-transform:none; font-size:clamp(62px,14vw,206px); filter:url(#rough)}
   #hero .mark span{display:block}
   #hero .mark .l2{margin-top:0}
   #hero .mark .l0{font-size:.34em; letter-spacing:.14em; margin-bottom:.06em; opacity:.9}
-  #hero .m0{color:var(--paint); text-shadow:0 0 32px rgba(95,224,126,.4); position:relative; z-index:2; animation:flick_h 5s steps(1) infinite}
+  #hero .m0{color:var(--paint); position:relative; z-index:2; animation:flick_h 5s steps(1) infinite}
   #hero .m1,#hero .m2{position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0; mix-blend-mode:screen}
   #hero .m1{color:#35ffc2; animation:g1_h 4.6s steps(1) infinite}
   #hero .m2{color:#ff3547; animation:g2_h 4.6s steps(1) infinite}
@@ -576,6 +591,28 @@
   #hero .cta .arw{transition:transform .3s}
   #hero .cta:hover .arw{transform:translateX(4px)}
   #hero .cta:focus-visible{outline:2px solid var(--paint); outline-offset:3px}
+  /* ===== hero entrance: one timeline, triggered by #hero.go ===== */
+  #hero .tags, #hero .streetart, #hero .sub, #hero .cta, #hero .pay, #hero .sticker{opacity:0}
+  #hero:not(.go) .sub, #hero:not(.go) .cta, #hero:not(.go) .pay, #hero:not(.go) .sticker{animation:none}
+  #hero .m0 > span{clip-path:inset(-80% 100% -80% -40%)}
+  #hero.go .streetart{animation:hfade 1.4s ease .05s forwards}
+  #hero.go .tags{animation:hdown .6s cubic-bezier(.2,.8,.2,1) .05s both}
+  #hero.go .m0 > span{animation:hspray .55s cubic-bezier(.45,0,.2,1) forwards}
+  #hero.go .m0 > .l0{animation-delay:.08s}
+  #hero.go .m0 > span:not(.l0):not(.l2){animation-delay:.22s}
+  #hero.go .m0 > .l2{animation-delay:.42s}
+  #hero.go .sticker{animation:slap_h .4s cubic-bezier(.3,1.4,.5,1) 1.05s both}
+  #hero.go .sub{animation:hup .7s cubic-bezier(.2,.8,.2,1) 1.1s both}
+  #hero.go .cta{animation:hup .7s cubic-bezier(.2,.8,.2,1) 1.22s both, ctaglow_h 3.4s ease-in-out 2.6s infinite}
+  #hero.go .pay{animation:hup .8s cubic-bezier(.2,.8,.2,1) 1.35s both}
+  @keyframes hspray{0%{clip-path:inset(-80% 100% -80% -40%)}100%{clip-path:inset(-80% -40% -80% -40%)}}
+  @keyframes hfade{to{opacity:1}}
+  @keyframes hdown{from{opacity:0; transform:translateY(-10px)}to{opacity:1; transform:none}}
+  @keyframes hup{from{opacity:0; transform:translateY(16px)}to{opacity:1; transform:none}}
+  @media(prefers-reduced-motion:reduce){
+    #hero .tags, #hero .streetart, #hero .sub, #hero .cta, #hero .pay, #hero .sticker{opacity:1 !important; animation:none !important}
+    #hero .m0 > span{clip-path:none !important; animation:none !important}
+  }
   @keyframes ctaglow_h{0%,100%{box-shadow:0 0 0 0 rgba(95,224,126,0)}50%{box-shadow:0 0 24px 0 rgba(95,224,126,.26)}}
   #hero .pay{position:absolute; bottom:clamp(16px,3.4vw,26px); left:0; right:0; z-index:6; display:flex; flex-direction:column; align-items:center; gap:9px; padding:0 16px; opacity:0; animation:up_h 1s ease 1.9s forwards}
   #hero .pay .paylabel{font-family:var(--mono); font-size:9px; letter-spacing:.3em; text-transform:uppercase; color:var(--dim)}
@@ -612,21 +649,88 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008' numOctaves='4' seed='11'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.021' numOctaves='3' seed='29'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
     background-size:1600px 1600px, 940px 940px; background-position:0 0, 137px 291px}
   .verified .gate{display:none}
-  .gate.hide{opacity:0; pointer-events:none; animation:greveal .6s ease forwards}
-  .gate.hide .gatebox{animation:gboxout .5s ease forwards}
+  .gate.hide{pointer-events:none; animation:greveal .25s ease .5s forwards}
+  .gate.hide .gatebox, .gate.hide .gtop, .gate.hide .gbot{animation:gboxout .45s ease forwards}
   .gate.hide .gflash{animation:gflash .55s ease forwards}
-  .gatebox{position:relative; z-index:2; width:min(420px,100%); text-align:center}
-  .gate .g19{position:relative; width:82px; height:82px; margin:0 auto 22px; border-radius:50%; border:2px solid var(--bone); display:flex; align-items:center; justify-content:center;
-    font-family:var(--cond); font-size:28px; color:var(--bone); box-shadow:inset 0 0 0 5px rgba(10,12,9,.9), 0 0 44px rgba(95,224,126,.16); animation:gbadge .7s cubic-bezier(.2,.9,.3,1.35) both}
-  .gate .g19::after{content:""; position:absolute; inset:-9px; border-radius:50%; border:1px solid rgba(95,224,126,.5); animation:gring 2.8s ease-out .9s infinite}
-  .gate h2{font-family:var(--black-let); font-size:clamp(34px,10vw,54px); line-height:.85; color:var(--paint); margin:0 0 12px; text-shadow:0 0 28px rgba(95,224,126,.3); animation:gspray 1s cubic-bezier(.2,.8,.2,1) .2s both, gflick 5s steps(1) 1.4s infinite}
-  .gate p{font-family:var(--mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--dim); line-height:1.7; margin:0 0 24px; opacity:0; animation:grise .7s ease .55s both}
-  .gate .gbtns{display:flex; flex-direction:column; gap:10px; opacity:0; animation:grise .7s ease .7s both}
-  .gate .gyes{font-family:var(--cond); font-size:17px; letter-spacing:.06em; text-transform:uppercase; color:#06210f; background:var(--paint); border:none; padding:15px; cursor:pointer; transition:box-shadow .2s}
-  .gate .gyes:hover{box-shadow:0 0 26px rgba(95,224,126,.45)}
-  .gate .gno{font-family:var(--cond); font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); background:transparent; border:1px solid var(--line); padding:12px; cursor:pointer; transition:color .2s, border-color .2s}
-  .gate .gno:hover{color:var(--bone); border-color:rgba(233,231,219,.3)}
-  .gate .gfine{margin-top:18px; font-size:9px; letter-spacing:.12em; line-height:1.7; text-transform:none; animation-delay:.85s}
+  .gate{flex-direction:column; padding:0}
+  .gatebox{position:relative; z-index:5; width:min(460px,100%); padding:0 24px; text-align:center}
+  .gleaf{position:absolute; z-index:1; width:min(130vw,820px); height:auto; left:50%; top:50%; transform:translate(-50%,-52%) rotate(-8deg);
+    color:var(--paint); opacity:.035; filter:url(#rough); pointer-events:none}
+  .gtop{position:absolute; z-index:5; top:calc(20px + env(safe-area-inset-top)); left:22px; right:22px; display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:14px; border-bottom:1px solid var(--line); opacity:0; animation:grise .7s ease .15s both}
+  .gbrand{font-family:var(--black-let); color:var(--paint); font-size:22px; line-height:1}
+  .gloc{display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--dim)}
+  .gloc i{width:6px; height:6px; border-radius:50%; background:var(--paint); box-shadow:0 0 10px var(--paint); animation:blink_h 2.4s steps(1) infinite}
+  .gbot{position:absolute; z-index:5; bottom:calc(20px + env(safe-area-inset-bottom)); left:22px; right:22px; display:flex; justify-content:space-between; gap:12px;
+    padding-top:14px; border-top:1px solid var(--line); font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim);
+    opacity:0; animation:grise .7s ease 1.3s both}
+  .gcorner{position:absolute; z-index:5; width:14px; height:14px; border-color:rgba(233,231,219,.35); border-style:solid; pointer-events:none}
+  .gcorner.tl{top:8px; left:8px; border-width:1px 0 0 1px} .gcorner.tr{top:8px; right:8px; border-width:1px 1px 0 0}
+  .gcorner.bl{bottom:8px; left:8px; border-width:0 0 1px 1px} .gcorner.br{bottom:8px; right:8px; border-width:0 1px 1px 0}
+
+  .gnum{position:relative; display:inline-block; font-family:var(--cond); line-height:.8; letter-spacing:-.02em;
+    font-size:min(66vw,46svh,400px); margin:0 0 clamp(18px,3svh,30px)}
+  .gnum::before{content:""; position:absolute; left:50%; top:50%; width:150%; height:130%; transform:translate(-50%,-50%); z-index:-1; pointer-events:none;
+    background:radial-gradient(closest-side, rgba(95,224,126,.2), rgba(95,224,126,0)); opacity:0; animation:grise 1s ease 1.1s forwards}
+  .gn-out{display:block; color:transparent; -webkit-text-stroke:2px rgba(233,231,219,.85); filter:url(#rough); animation:gout .6s ease 1.55s forwards}
+  @keyframes gout{to{opacity:0}}
+  .gn-fill{position:absolute; inset:0; color:var(--paint); filter:url(#rough);
+    clip-path:inset(125% -10% -25% -10%); animation:gfill 1.25s cubic-bezier(.65,0,.25,1) .35s forwards}
+  .gn-plus{position:absolute; top:.02em; right:-.34em; font-size:.38em; line-height:1; color:var(--paint);
+    opacity:0; transform:scale(.4) rotate(-20deg); animation:gplus .45s cubic-bezier(.3,1.5,.5,1) 1.5s forwards}
+  @keyframes gfill{0%{clip-path:inset(125% -10% -25% -10%)}100%{clip-path:inset(-25% -10% -25% -10%)}}
+  @keyframes gplus{to{opacity:1; transform:none}}
+
+  .gq{font-family:var(--cond); font-weight:400; font-size:clamp(24px,7vw,36px); letter-spacing:.02em; text-transform:uppercase; color:var(--bone);
+    margin:0 0 8px; line-height:1; opacity:0; animation:grise .7s ease 1.05s both}
+  .gsub{font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--dim); line-height:1.6; margin:0 0 24px; opacity:0; animation:grise .7s ease 1.15s both}
+  .gbtns{display:flex; flex-direction:column; align-items:center; gap:14px; opacity:0; animation:grise .7s ease 1.25s both}
+  .gyes{position:relative; overflow:hidden; width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-family:var(--cond); font-size:18px; letter-spacing:.06em; text-transform:uppercase; color:var(--bone);
+    background:transparent; border:2px solid var(--paint); padding:17px 20px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    box-shadow:0 0 0 0 rgba(95,224,126,0); transition:color .25s, box-shadow .3s; animation:gyesglow 3.4s ease-in-out 2.4s infinite}
+  .gyes::before{content:""; position:absolute; inset:0; background:var(--paint); transform:translateX(-101%); transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .gyes > *{position:relative; z-index:1}
+  .gyes svg{width:20px; height:20px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .3s}
+  .gyes:hover{color:#06210f}
+  .gyes:focus-visible{outline:2px solid var(--bone); outline-offset:4px}
+  .gyes:hover::before{transform:none}
+  .gyes:hover svg{transform:translateX(4px)}
+  .gyes:active::before{transform:none}
+  .gyes:active{color:#06210f}
+  @keyframes gyesglow{0%,100%{box-shadow:0 0 0 0 rgba(95,224,126,0)}50%{box-shadow:0 0 28px 0 rgba(95,224,126,.28)}}
+  .gbtns{gap:12px}
+  .gdob{display:grid; grid-template-columns:1fr 1fr 1.5fr; gap:10px; width:100%}
+  .gdf{display:flex; flex-direction:column; gap:6px; text-align:left}
+  .gdf span{font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--dim)}
+  .gdf input{width:100%; min-width:0; box-sizing:border-box; font-family:var(--cond); font-size:26px; letter-spacing:.08em; text-align:center; color:var(--bone);
+    background:rgba(13,16,12,.85); border:1px solid var(--line); border-radius:0; padding:12px 6px; outline:none; -webkit-appearance:none; appearance:none;
+    transition:border-color .2s, box-shadow .2s}
+  .gdf input::placeholder{color:rgba(134,140,125,.45)}
+  .gdf input:focus{border-color:var(--paint); box-shadow:0 0 0 3px rgba(95,224,126,.14)}
+  .gdob.bad .gdf input{border-color:var(--red)}
+  .gdob.shake{animation:gshake .4s}
+  @keyframes gshake{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+  .gerr{min-height:16px; margin:0; font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:#ff5a6a; text-align:center}
+  .glegal{margin:4px 0 0; font-family:var(--mono); font-size:9.5px; line-height:1.65; letter-spacing:.04em; color:var(--dim); text-align:center}
+
+  .gwipe{position:absolute; inset:0; z-index:8; background:var(--paint); transform:translateY(101%); pointer-events:none}
+  .gate.hide .gwipe{animation:gwipe .7s cubic-bezier(.7,0,.25,1) forwards}
+  @keyframes gwipe{0%{transform:translateY(101%)}55%{transform:translateY(0)}100%{transform:translateY(-101%)}}
+
+  .gate.denied .gn-fill{animation:none; clip-path:inset(-25% -10% -25% -10%); color:var(--red)}
+  .gate.denied .gnum::before{background:radial-gradient(closest-side, rgba(216,6,33,.2), rgba(216,6,33,0))}
+  .gate.denied .gn-plus{color:var(--red)}
+  .gate.denied .gbtns{display:none !important}
+
+  @media(max-height:640px){ .gnum{font-size:min(60vw,38svh)} .gsub{margin-bottom:16px} .gtop,.gbot{display:none} }
+  @media(min-width:900px){ .gtop,.gbot{left:40px; right:40px} .gtop{top:30px} .gbot{bottom:30px} }
+  @media(prefers-reduced-motion:reduce){
+    .gn-fill{animation:none; clip-path:inset(-25% -10% -25% -10%)}
+    .gn-out{animation:none; opacity:0}
+    .gn-plus{opacity:1; transform:none}
+    .gtop,.gbot,.gq,.gsub,.gbtns{opacity:1 !important; animation:none !important}
+  }
   .gate .ghaze{position:absolute; inset:0; z-index:1; pointer-events:none; background:radial-gradient(50% 42% at 50% 42%, rgba(95,224,126,.13), transparent 70%); animation:gbreath 8s ease-in-out infinite}
   .gate .gspot{position:absolute; left:0; top:0; width:480px; height:480px; margin:-240px 0 0 -240px; z-index:1; pointer-events:none; background:radial-gradient(circle, rgba(95,224,126,.14), transparent 66%); mix-blend-mode:screen; opacity:0; transition:opacity .5s; will-change:transform}
   .gate .gflash{position:absolute; inset:0; z-index:4; pointer-events:none; background:var(--paint); opacity:0}
@@ -751,7 +855,7 @@
   #editor .eo-acts button{background:transparent; border:1px solid var(--line); color:var(--dim); font-size:11px; padding:5px 9px; cursor:pointer; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em}
   #editor .eo-acts button:hover{color:var(--paint); border-color:var(--paint)}
 </style>
-<script>try{if(localStorage.getItem('ws_age_ok')==='1')document.documentElement.classList.add('verified');}catch(e){}</script>
+<script>try{localStorage.removeItem('ws_age_ok');}catch(e){}try{if(sessionStorage.getItem('tws_age_ok')==='1')document.documentElement.classList.add('verified');else document.documentElement.classList.add('gated');}catch(e){document.documentElement.classList.add('gated');}</script>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -760,7 +864,7 @@
   "@context":"https://schema.org",
   "@type":"Store",
   "name":"The Weed Shop",
-  "description":"Cannabis delivery in British Columbia with Canada-wide shipping.",
+  "description":"Cannabis delivered across Canada, with same-day local delivery in select cities.",
   "url":"https://theweedshop.net/",
   "image":"https://theweedshop.net/og-image.png",
   "areaServed":[
@@ -770,7 +874,7 @@
     {"@type":"City","name":"Delta"},
     {"@type":"City","name":"Maple Ridge"}
   ],
-  "address":{"@type":"PostalAddress","addressRegion":"BC","addressCountry":"CA"},
+  "address":{"@type":"PostalAddress","addressCountry":"CA"},
   "currenciesAccepted":"CAD",
   "paymentAccepted":"Interac e-Transfer, Bitcoin, Monero"
 }
@@ -813,16 +917,36 @@
     <div class="gspot" id="gspot" aria-hidden="true"></div>
     <div class="gflash" aria-hidden="true"></div>
     <div class="ggrain" aria-hidden="true"></div>
-    <div class="gatebox">
-      <div class="g19">19+</div>
-      <h2>The Weed Shop</h2>
-      <p>You must be 19 or older to enter.<br/>Canada only.</p>
-      <div class="gbtns">
-        <button class="gyes" id="gyes" type="button">Yes &mdash; I'm 19 or older</button>
-        <button class="gno" id="gno" type="button">I'm under 19</button>
-      </div>
-      <p class="gfine">By entering you confirm you are of legal age in your province and agree to consume responsibly.</p>
+    <svg class="gleaf" viewBox="0 0 240 260" aria-hidden="true"><use href="#wleaf"/></svg>
+    <div class="gtop">
+      <span class="gbrand">The Weed Shop</span>
+      <span class="gloc"><i></i>Canada-wide</span>
     </div>
+    <div class="gatebox">
+      <div class="gnum" aria-hidden="true">
+        <span class="gn-out">19</span><span class="gn-fill">19</span><span class="gn-plus">+</span>
+      </div>
+      <h2 class="gq" id="gq">Verify your age</h2>
+      <p class="gsub" id="gsub">Enter your date of birth to continue.</p>
+      <form class="gbtns" id="gbtns" novalidate autocomplete="off">
+        <div class="gdob" id="gdob" role="group" aria-label="Date of birth">
+          <label class="gdf"><span>Day</span><input id="gdd" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="DD" aria-label="Day of birth"/></label>
+          <label class="gdf"><span>Month</span><input id="gmm" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="Month of birth"/></label>
+          <label class="gdf gdy"><span>Year</span><input id="gyy" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="YYYY" aria-label="Year of birth"/></label>
+        </div>
+        <p class="gerr" id="gerr" role="alert" aria-live="polite"></p>
+        <button class="gyes" id="gyes" type="submit"><span>Verify age &amp; enter</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+        <p class="glegal">You must be 19 or older to enter. Government-issued photo ID is verified on delivery. Your date of birth is not stored.</p>
+      </form>
+    </div>
+    <div class="gbot">
+      <span>Adults 19+ only</span>
+      <span>Consume responsibly</span>
+    </div>
+    <span class="gcorner tl" aria-hidden="true"></span><span class="gcorner tr" aria-hidden="true"></span>
+    <span class="gcorner bl" aria-hidden="true"></span><span class="gcorner br" aria-hidden="true"></span>
+    <div class="gwipe" aria-hidden="true"></div>
+  </div>
   </div>
   <div id="swipe" aria-hidden="true"><div class="sw sw1"></div><div class="sw sw2"></div><div class="sw sw3"></div><div class="swgrain"></div><div class="swflash"></div><div class="swcore"><svg class="swipe-leaf" viewBox="0 0 240 260"><use href="#wleaf"/></svg></div></div>
   <div id="hero">
@@ -1129,9 +1253,9 @@
     if(x==='newest') return l.slice().sort(function(a,b){return (Date.parse(b._ca)||0)-(Date.parse(a._ca)||0);});
     return l; }
 
-  function card(p){
+  function card(p,i){
     var av=availV(p), mn=minPrice(p), multi=av.length>1, metaR=multi?(av.length+' options'):(av[0]?av[0].n:'');
-    return '<article class="card" data-id="'+p.id+'"><div class="cvis" style="--lf:'+tcol(p)+'">'+
+    return '<article class="card" data-id="'+p.id+'" style="--i:'+Math.min(i||0,12)+'"><div class="cvis" style="--lf:'+tcol(p)+'">'+
       (p.img? '<img class="cimg" src="'+esc(p.img)+'" alt="'+esc(p.n)+'" loading="lazy" onerror="this.remove()"/><svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>' : '<svg class="cleaf" viewBox="0 0 240 260"><use href="'+artFor(p)+'"/></svg>')+
       '<div class="ctypes">'+typeBadges(p)+'</div></div>'+
       '<div class="cbody"><h3 class="cn">'+esc(p.n)+'</h3><p class="cmeta">'+esc(p.c)+' &middot; '+esc(metaR)+'</p>'+
@@ -1146,6 +1270,7 @@
     });
     list=sortList(list);
     var rc=document.getElementById('rescount'); if(rc) rc.textContent=list.length+' '+(list.length===1?'item':'items');
+    if(!document.body.classList.contains('hero-open')) grid.classList.add('in');
     grid.innerHTML = list.length ? list.map(card).join('')
       : (!P.length ? (window.__WSLOADING ? '<div class="empty">Loading menu\u2026</div>' : '<div class="empty"><svg class="emleaf" viewBox="0 0 240 260" aria-hidden="true"><use href="#wleaf"/></svg><div class="empty-t">Menu updating</div><div class="empty-s">New products coming soon \u2014 check back shortly.</div></div>')
          : '<div class="empty">No products found</div>');
@@ -1250,6 +1375,20 @@
     var _qa=document.getElementById('qadd'); if(_qa){ _qa.disabled=false; _qa.classList.remove('disabled'); _qa.textContent='Add to cart'; }
   });
   document.addEventListener('click', function(e){ var dd=document.getElementById('vdd'); if(dd && !dd.contains(e.target)) { dd.classList.remove('open'); var bb=document.getElementById('vdbtn'); if(bb) bb.setAttribute('aria-expanded','false'); } });
+  var _lockY=0, _lockN=0;
+  function lockScroll(){
+    if(_lockN++ > 0) return;
+    _lockY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.top = (-_lockY)+'px';
+    document.body.classList.add('scroll-lock');
+  }
+  function unlockScroll(){
+    if(_lockN > 0) _lockN--;
+    if(_lockN > 0) return;
+    document.body.classList.remove('scroll-lock');
+    document.body.style.top = '';
+    window.scrollTo(0, _lockY);
+  }
   function openQuick(p){ if(!p) return; curQ=p;
     document.getElementById('qvis').style.setProperty('--lf', tcol(p));
     document.getElementById('qtype').innerHTML=typeBadges(p);
@@ -1279,9 +1418,9 @@
     else { qVar=av[0].n; qVarPrice=av[0].p; document.getElementById('qp').textContent='$'+qVarPrice; }
     setQty(1);
     var qa=document.getElementById('qadd'); qa.textContent=_needsPick?'Choose a variant':'Add to cart'; qa.disabled=!!_needsPick; qa.classList.toggle('disabled', !!_needsPick);
-    quick.classList.add('open'); qscrim.classList.add('open');
+    quick.classList.add('open'); qscrim.classList.add('open'); lockScroll();
   }
-  function closeQuick(){ quick.classList.remove('open'); qscrim.classList.remove('open'); }
+  function closeQuick(){ if(!quick.classList.contains('open')) return; quick.classList.remove('open'); qscrim.classList.remove('open'); unlockScroll(); }
   qscrim.addEventListener('click',closeQuick);
   document.getElementById('qclose').addEventListener('click',closeQuick);
   document.getElementById('qadd').addEventListener('click',function(){
@@ -1293,8 +1432,8 @@
 
   // cart drawer
   var drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim'), ditems=document.getElementById('ditems'), totalEl=document.getElementById('total');
-  function openCart(){ if(MENU_ONLY) return; renderCart(); drawer.classList.add('open'); scrim.classList.add('open'); }
-  function closeCart(){ drawer.classList.remove('open'); scrim.classList.remove('open'); }
+  function openCart(){ if(MENU_ONLY) return; renderCart(); drawer.classList.add('open'); scrim.classList.add('open'); lockScroll(); }
+  function closeCart(){ if(!drawer.classList.contains('open')) return; drawer.classList.remove('open'); scrim.classList.remove('open'); unlockScroll(); }
   cartBtn.addEventListener('click',openCart);
   scrim.addEventListener('click',closeCart);
   function pById(id){ for(var i=0;i<P.length;i++) if(P[i].id===id) return P[i]; }
@@ -1514,8 +1653,8 @@
     document.getElementById('cosum').innerHTML=rows; document.getElementById('copayable').textContent=amt(grand); return grand;
   }
   function syncOpts(){ Array.prototype.forEach.call(coform.querySelectorAll('.coopt'), function(o){ var i=o.querySelector('input'); o.classList.toggle('sel', !!(i&&i.checked)); }); }
-  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; _loadDelivery(); applyDeliveryCfg(); syncZone(); syncPayMethods(); gotoStep(1); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; }
-  function closeCheckout(){ pickedSlot=''; try{ gotoStep(1); }catch(_){} coview.classList.remove('open'); }
+  function openCheckout(){ if(MENU_ONLY) return; if(orderSub()<=0) return; _loadDelivery(); applyDeliveryCfg(); syncZone(); syncPayMethods(); gotoStep(1); ensureRates(function(){ try{ recalcSummary(); }catch(e){} }); closeCart(); coconfirm.hidden=true; coform.style.display=''; recalcSummary(); syncOpts(); coview.classList.add('open'); coview.scrollTop=0; lockScroll(); }
+  function closeCheckout(){ if(!coview.classList.contains('open')) return; pickedSlot=''; try{ gotoStep(1); }catch(_){} coview.classList.remove('open'); unlockScroll(); }
   coform.addEventListener('change', function(e){ if(e.target.name==='method'||e.target.name==='pay') recalcSummary(); if(e.target.name==='method') renderSlots(); if(e.target.name==='city') syncZone(); syncOpts(); });
   coform.addEventListener('input', function(e){ if(e.target.name==='city') syncZone(); var w=e.target.closest&&e.target.closest('.cofield'); if(w&&w.classList.contains('err')&&validField(e.target)) w.classList.remove('err'); });
   document.addEventListener('click', function(e){ var b=e.target&&e.target.closest?e.target.closest('.coslot'):null; if(!b) return;
@@ -1685,13 +1824,21 @@
 (function(){
   "use strict";
   var gate=document.getElementById('gate'), hero=document.getElementById('hero');
+  var _zapT=null;
+  function playHero(){
+    if(!hero) return;
+    hero.classList.remove('go'); void hero.offsetWidth; hero.classList.add('go');
+    clearTimeout(_zapT);
+    var mw=hero.querySelector('.markwrap');
+    if(mw && !rm){ _zapT=setTimeout(function(){ mw.classList.remove('zap'); void mw.offsetWidth; mw.classList.add('zap'); setTimeout(function(){ mw.classList.remove('zap'); }, 560); }, 1150); }
+  }
   var rm=false, fp=false;
   try{ rm=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
   try{ fp=matchMedia('(hover:hover) and (pointer:fine)').matches; }catch(e){}
   var swipe=document.getElementById('swipe');
   function runSwipe(mid){ if(rm || !swipe){ mid(); return; } swipe.classList.remove('go'); void swipe.offsetWidth; swipe.classList.add('go'); setTimeout(mid, 430); setTimeout(function(){ swipe.classList.remove('go'); }, 920); }
-  function showShop(){ if(!hero) return; runSwipe(function(){ hero.classList.add('gone'); document.body.classList.remove('hero-open'); document.documentElement.classList.remove('hero-lock'); window.scrollTo(0,0); }); }
-  function showHero(){ if(!hero) return; runSwipe(function(){ hero.classList.remove('gone','leaving'); document.body.classList.add('hero-open'); document.documentElement.classList.add('hero-lock'); window.scrollTo(0,0); }); }
+  function showShop(){ if(!hero) return; runSwipe(function(){ hero.classList.add('gone'); document.body.classList.remove('hero-open'); var _g=document.getElementById('grid'); if(_g){ _g.classList.remove('in'); _g.style.setProperty('--d', rm?'0ms':'420ms'); void _g.offsetWidth; _g.classList.add('in'); setTimeout(function(){ _g.style.setProperty('--d','0ms'); }, 2600); } document.documentElement.classList.remove('hero-lock'); window.scrollTo(0,0); }); }
+  function showHero(){ if(!hero) return; runSwipe(function(){ hero.classList.remove('gone','leaving'); document.body.classList.add('hero-open'); playHero(); document.documentElement.classList.add('hero-lock'); window.scrollTo(0,0); }); }
   var enter=document.getElementById('enterShop'), brand=document.querySelector('.brand');
   var _busy=false; function once(fn){ if(_busy) return; _busy=true; setTimeout(function(){_busy=false;},700); fn(); }
   function bindTap(el,fn){ if(!el) return; el.addEventListener('click', function(e){ e.preventDefault(); once(fn); }); el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); once(fn); } }); }
@@ -1703,13 +1850,60 @@
   }, true);
   (function(){
     if(!gate) return;
-    var ok=false; try{ ok=localStorage.getItem('ws_age_ok')==='1'; }catch(e){}
-    if(ok){ if(gate.parentNode) gate.parentNode.removeChild(gate); return; }
+    var ok=false; try{ ok=sessionStorage.getItem('tws_age_ok')==='1'; }catch(e){}
+    if(ok){ document.documentElement.classList.remove('gated'); if(gate.parentNode) gate.parentNode.removeChild(gate); playHero(); return; }
     var gs=document.getElementById('gspot');
     if(fp && !rm && gs){ gate.addEventListener('pointermove', function(e){ if(e.pointerType==='touch') return; gs.style.opacity='1'; gs.style.transform='translate('+e.clientX+'px,'+e.clientY+'px)'; }); }
-    var y=document.getElementById('gyes'), no=document.getElementById('gno');
-    if(y) y.addEventListener('click', function(){ try{ localStorage.setItem('ws_age_ok','1'); }catch(e){} gate.classList.add('hide'); setTimeout(function(){ if(gate.parentNode) gate.parentNode.removeChild(gate); }, 640); });
-    if(no) no.addEventListener('click', function(){ var b=gate.querySelector('.gatebox'); if(b) b.innerHTML='<div class="g19">19+</div><h2>Hold up</h2><p>You must be 19 or older to enter The Weed Shop.<br/>Come back when you are of legal age.</p>'; });
+    var y=document.getElementById('gyes'), form=document.getElementById('gbtns');
+    var fd=document.getElementById('gdd'), fm=document.getElementById('gmm'), fy=document.getElementById('gyy');
+    var dob=document.getElementById('gdob'), err=document.getElementById('gerr');
+    function releasePage(){ document.documentElement.classList.remove('gated'); Array.prototype.forEach.call(document.body.children, function(el){ if(el!==gate) el.removeAttribute('inert'); }); }
+    Array.prototype.forEach.call(document.body.children, function(el){ if(el!==gate && el.tagName!=='SCRIPT') el.setAttribute('inert',''); });
+    var fields=[fd,fm,fy];
+    fields.forEach(function(f,i){
+      if(!f) return;
+      f.addEventListener('input', function(){
+        f.value=f.value.replace(/\D/g,'').slice(0, f.maxLength);
+        dob.classList.remove('bad'); err.textContent='';
+        if(f.value.length===f.maxLength && fields[i+1]) fields[i+1].focus();
+      });
+      f.addEventListener('keydown', function(e){ if(e.key==='Backspace' && !f.value && fields[i-1]){ fields[i-1].focus(); } });
+      f.addEventListener('paste', function(e){
+        var t=(e.clipboardData||window.clipboardData).getData('text')||'';
+        var m=t.match(/(\d{4})\D(\d{1,2})\D(\d{1,2})/) || null, m2=t.match(/(\d{1,2})\D(\d{1,2})\D(\d{4})/) || null;
+        if(m){ e.preventDefault(); fy.value=m[1]; fm.value=m[2]; fd.value=m[3]; }
+        else if(m2){ e.preventDefault(); fd.value=m2[1]; fm.value=m2[2]; fy.value=m2[3]; }
+      });
+    });
+    function fail(msg){ err.textContent=msg; dob.classList.add('bad'); dob.classList.remove('shake'); void dob.offsetWidth; dob.classList.add('shake'); }
+    function ageOf(d,m,yr){
+      var now=new Date(), a=now.getFullYear()-yr;
+      if(now.getMonth()+1<m || (now.getMonth()+1===m && now.getDate()<d)) a--;
+      return a;
+    }
+    function deny(){
+      gate.classList.add('denied');
+      var q=document.getElementById('gq'), sb=document.getElementById('gsub');
+      if(q) q.textContent='Come back later';
+      if(sb) sb.textContent='You need to be 19 or older to enter The Weed Shop.';
+    }
+    if(form) form.addEventListener('submit', function(e){
+      e.preventDefault();
+      if(gate.classList.contains('hide') || gate.classList.contains('denied')) return;
+      var d=parseInt(fd.value,10), m=parseInt(fm.value,10), yr=parseInt(fy.value,10), nowY=new Date().getFullYear();
+      if(!fd.value || !fm.value || !fy.value){ fail('Enter your full date of birth.'); (fd.value?(fm.value?fy:fm):fd).focus(); return; }
+      if(fy.value.length!==4 || yr<1900 || yr>nowY){ fail('Enter a valid 4-digit year.'); fy.focus(); return; }
+      var dt=new Date(yr, m-1, d);
+      if(m<1 || m>12 || d<1 || dt.getFullYear()!==yr || dt.getMonth()!==m-1 || dt.getDate()!==d){ fail('That date doesn’t exist. Check day and month.'); return; }
+      if(dt>new Date()){ fail('Date of birth can’t be in the future.'); return; }
+      fields.forEach(function(f){ f.blur(); });
+      if(ageOf(d,m,yr)<19){ deny(); return; }
+      try{ sessionStorage.setItem('tws_age_ok','1'); }catch(_){}
+      gate.classList.add('hide');
+      setTimeout(releasePage, rm?0:380);
+      setTimeout(playHero, rm?0:420);
+      setTimeout(function(){ if(gate.parentNode) gate.parentNode.removeChild(gate); }, rm?50:780);
+    });
   })();
   if(!rm){ var mw=document.querySelector('#hero .markwrap'); if(mw){ mw.addEventListener('pointerdown', function(){ mw.classList.remove('zap'); void mw.offsetWidth; mw.classList.add('zap'); setTimeout(function(){ mw.classList.remove('zap'); }, 560); }); } }
 })();
